@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1480">
+<title>Libro de Reservas – Pantallas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap">
+<!--
+==============================================================================
+ LIBRO DE RESERVAS · RÉPLICA HTML DE FIGMA (Mesa247)
+ Figma: "Configuración Libro (Updates 2026)"
+   Pantalla 1 · Horarios (Timeline) ........ node 1850:158791
+   Pantalla 2 · Vista de reservas (Libro) .. node 1850:134276
+------------------------------------------------------------------------------
+ CÓMO USAR ESTE ARCHIVO (para Claude Design / Claude Code)
+ - Cada pantalla es un frame de 1440 × 1024 px. Medidas en px reales a 100 %.
+ - NO convertir a vw / vh / % / rem / clamp(). Sólo crecen los bloques con
+   flex:1 (panel principal, mapa) y las 6 columnas de hora.
+ - Texto: Manrope 12/16, 14/20 y 16/24 (tamaño/line-height). Nada más grande.
+ - Iconos: Tabler outline (16 px stroke 2 · 20 px stroke 1.75).
+ - El mapa de mesas usa coordenadas BASE (100 %) y se agranda con una sola
+   transform: scale(var(--map-zoom)). En Figma ese zoom es 1.373.
+ - Los componentes compartidos (top bar, menú lateral, tabs) son idénticos en
+   las dos pantallas: reutilizarlos.
+==============================================================================
+-->
+<style>
+:root{
+  --bg-default:#0b0b0c; --bg-card:#16181a; --bg-primary:#1e2021; --bg-secondary:#252627;
+  --border:#38393a; --border-strong:#b5b5ba;
+  --fg:#f9f9f9; --fg-secondary:#e2e2e5; --fg-muted:#7b7c82; --fg-inverted:#0b0b0c;
+  --orange:#fc8a0b; --orange-25:rgba(252,138,11,.25); --blue:#0e79e1;
+  --green:#2add0a; --green-50:rgba(42,221,10,.5); --red:#bb1515; --chip-dark:#26292e;
+  --r-sm:4px; --r-lg:12px; --r-xl:16px; --r-full:400px;
+  --map-zoom:1.373;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{margin:0;background:#2b2c2f;font-family:Manrope,system-ui,sans-serif;color:var(--fg);padding:40px 20px 80px}
+button,input{font-family:inherit}
+button{cursor:pointer}
+.frame-label{width:1440px;margin:0 auto 12px;font:600 14px/20px Manrope,sans-serif;color:#c9cacf}
+.frame-label span{color:#8a8b90;font-weight:400}
+.frame{width:1440px;height:1024px;margin:0 auto 64px;background:var(--bg-default);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+
+/* ---------- Iconos ---------- */
+.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic20{width:20px;height:20px;stroke-width:1.75}
+.ic-fill{fill:currentColor;stroke:none}
+
+/* ---------- Botones ---------- */
+.btn{height:40px;padding:8px 16px;border-radius:var(--r-full);background:var(--bg-primary);border:1px solid var(--border);color:var(--fg);font:500 14px/20px Manrope,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.btn-icon{width:40px;padding:8px}
+.btn-selected{background:var(--bg-secondary);border-color:var(--border-strong)}
+.btn-ghost{background:transparent;border-color:transparent}
+.btn-cta{background:var(--orange);border:0;color:#000;gap:4px;border-radius:90px}
+
+/* ---------- Top bar · h60 ---------- */
+.topbar{height:60px;flex-shrink:0;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-default)}
+.local{height:44px;display:flex;align-items:center;gap:8px;background:none;border:0;color:var(--fg);padding:4px 0}
+.logo{width:32px;height:32px;border-radius:var(--r-full);background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font:700 6px/1 Manrope,sans-serif;letter-spacing:.3px}
+.local-text{display:flex;flex-direction:column;align-items:flex-start}
+.local-text small{font:300 12px/16px Manrope,sans-serif;color:var(--fg-secondary)}
+.local-text b{font:700 14px/20px Manrope,sans-serif}
+.row8{display:flex;align-items:center;gap:8px}
+
+/* ---------- Content ---------- */
+.content{flex:1;min-height:0;display:flex}
+
+/* ---------- Sidebar (libro_menu) · w64 ---------- */
+.sidemenu{width:64px;flex-shrink:0;padding:16px 0 24px;display:flex;flex-direction:column;gap:8px;background:var(--bg-default)}
+.sidemenu a{width:64px;height:64px;display:flex;align-items:center;justify-content:center;color:var(--fg)}
+.sidemenu a.active{background:var(--bg-primary);border-right:2px solid var(--fg)}
+
+/* ---------- Tabs de zona · pt8 px16 · h52 · gap16 ---------- */
+.subbar{padding:8px 16px 0;display:flex;align-items:center;justify-content:space-between;background:var(--bg-default);flex-shrink:0}
+.tabs{display:flex;gap:16px;height:52px}
+.tab{padding:8px 16px;border-radius:var(--r-sm);background:none;border:0;color:var(--fg-muted);font:500 14px/20px Manrope,sans-serif;white-space:nowrap}
+.tab.active{background:var(--bg-card);color:#fff;font-weight:600;border-radius:var(--r-xl) var(--r-xl) 0 0}
+
+/* ---------- Inputs ---------- */
+.search{height:40px;padding:8px 16px;border-radius:var(--r-lg);background:var(--bg-primary);border:1px solid var(--border);display:flex;align-items:center;gap:12px;color:var(--fg-muted)}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:400 12px/16px Manrope,sans-serif;padding:0}
+.search input::placeholder{color:var(--fg-muted)}
+.zoom{height:40px;padding:8px 16px;border-radius:90px;background:var(--bg-primary);border:1px solid var(--border);display:flex;align-items:center;gap:16px;color:#fff;font:700 14px/20px Manrope,sans-serif}
+.zoom button{background:none;border:0;padding:0;color:inherit;display:flex}
+
+/* =================== PANTALLA 1 · HORARIOS =================== */
+.timeline{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg-card)}
+.grid-wrap{flex:1;min-height:0;position:relative;overflow:hidden;font:600 12px/16px Manrope,sans-serif}
+.vlines{position:absolute;inset:0 0 0 128px;display:grid;grid-template-columns:repeat(6,1fr);border-left:1px solid var(--border);pointer-events:none}
+.vlines i{border-right:1px solid var(--border)}
+.tl-row{position:relative;display:flex;height:40px;border-bottom:1px solid var(--border)}
+.tl-mesa{width:128px;flex-shrink:0;padding:4px 16px;display:flex;align-items:center;gap:10px}
+.tl-mesa b{width:80px;font-weight:600;color:var(--fg)}
+.tl-mesa span{color:var(--fg-muted)}
+.tl-hours{flex:1;display:grid;grid-template-columns:repeat(6,1fr);color:#fafafa}
+.tl-hours span{display:flex;align-items:center;justify-content:center}
+.tl-section{position:relative;height:25px;padding:4px 16px;display:flex;gap:8px;background:var(--bg-default);border-bottom:1px solid var(--border);white-space:nowrap}
+.tl-section b{font-weight:600;color:var(--fg)} .tl-section span{color:var(--fg-muted)}
+.tl-track{flex:1;position:relative}
+/* Barra de reserva · h35 r8 px12 py4. left/width = horas × 208px (1248px / 6) */
+.res-bar{position:absolute;top:2px;height:35px;padding:4px 12px;border-radius:8px;background:var(--green);color:var(--fg-inverted);display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap;overflow:hidden}
+.res-bar .name{display:flex;align-items:center;gap:4px;font:400 14px/20px Manrope,sans-serif}
+.res-bar .meta{display:flex;align-items:center;gap:4px;font:400 12px/16px Manrope,sans-serif}
+.pax{display:flex;align-items:center;padding:4px 6px 4px 2px;border-radius:8px;background:rgba(16,18,19,.5)}
+.now{position:absolute;top:36px;bottom:0;width:2px;margin-left:-1px;background:var(--orange);pointer-events:none}
+.now::before{content:"";position:absolute;top:0;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange)}
+
+/* =================== PANTALLA 2 · VISTA DE RESERVAS =================== */
+.split{flex:1;min-width:0;display:flex;gap:8px}
+/* Lista · w432 */
+.list{width:432px;flex-shrink:0;background:var(--bg-card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px 0;display:flex;flex-direction:column;overflow:hidden}
+.list-search{padding:0 16px 16px;display:flex;gap:8px}
+.list-search .search{flex:1}
+.list-head{height:32px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-default);font:700 14px/20px Manrope,sans-serif;color:#fff}
+.time-row{height:32px;padding:8px 48px 8px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-primary);font:700 14px/20px Manrope,sans-serif;color:#fff}
+.counts{display:flex;gap:6px}
+.count{display:flex;align-items:center;gap:4px}
+/* Tarjeta · p16 gap16 */
+.card{width:432px;padding:16px;display:flex;align-items:center;gap:16px;background:var(--bg-card);border-bottom:1px solid var(--border)}
+.card.last{border-bottom:0}
+.state{width:40px;height:40px;flex-shrink:0;border:2px solid var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--green)}
+.info{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.info .who{display:flex;flex-direction:column}
+.info .who b{font:600 16px/24px Manrope,sans-serif}
+.info .who span{font:400 14px/20px Manrope,sans-serif}
+.chip{padding:0 6px;border:1px solid var(--orange-25);border-radius:var(--r-full);font:600 14px/20px Manrope,sans-serif;color:var(--orange)}
+.label{padding:0 10px;background:var(--blue);border-radius:var(--r-full);font:600 14px/20px Manrope,sans-serif;color:#fff}
+.side{width:29px;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;font:500 16px/24px Manrope,sans-serif}
+.divider{width:1px;height:77px;background:var(--border);flex-shrink:0}
+.table-no{padding:0 16px;font:600 16px/24px Manrope,sans-serif}
+
+/* Mapa · flex1 (936px) */
+.map{flex:1;min-width:0;background:var(--bg-card);border-radius:var(--r-xl) var(--r-xl) 0 0;display:flex;flex-direction:column;overflow:hidden}
+.map .subbar{border-radius:var(--r-xl) var(--r-xl) 0 0}
+.canvas-wrap{flex:1;min-height:0;position:relative;overflow:hidden}
+.canvas{position:absolute;left:0;top:0;width:682px;height:620px;transform:scale(var(--map-zoom));transform-origin:0 0}
+.sep{position:absolute;background:var(--bg-primary);border-radius:3px}
+/* Mesa (valores base 100 %) */
+.mesa{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px}
+.mesa-no{display:flex;align-items:center;gap:2px;font:500 10px/12px Manrope,sans-serif;color:#fff;white-space:nowrap}
+.blocked{background:var(--red);border-radius:2px;padding:0 2px;font:400 8px/12px Manrope,sans-serif}
+.mesa-body{display:flex;flex-direction:column;align-items:center;gap:1px}
+.mesa-mid{display:flex;align-items:center;gap:1px}
+.chair-h{width:16px;height:6px;background:var(--green-50);border-radius:3px 3px 0 0}
+.chair-h.b{border-radius:0 0 3px 3px}
+.chair-v{width:6px;height:16px;background:var(--green-50);border-radius:3px 0 0 3px}
+.chair-v.r{border-radius:0 3px 3px 0}
+.tbl{width:48px;height:48px;border-radius:3px;background:var(--green);padding:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#000;font:400 8px/12px Manrope,sans-serif}
+.tbl.lg{width:60px;height:60px;border-radius:30px}
+.tbl.sm{width:40px;height:40px;border-radius:15px;gap:1px;font-size:6px;line-height:8px}
+.mesa.small .chair-h{width:13px;height:5px} .mesa.small .chair-v{width:5px;height:13px}
+.tbl .hora{background:var(--chip-dark);border-radius:2px;padding:0 2px;color:#fff;white-space:nowrap}
+.tbl .nom{width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbl .pp{align-self:flex-end;display:flex;align-items:center;gap:1px}
+.tbl .pp svg{width:8px;height:8px;stroke-width:2}
+.tbl.sm .pp svg{width:6px;height:6px}
+/* Footer mapa · px16 py8 */
+.map-footer{flex-shrink:0;padding:8px 16px;display:flex;align-items:center;justify-content:space-between}
+.foot-btns{display:flex;gap:16px;padding:0 8px;position:relative}
+.foot-btns button{width:44px;height:44px;padding:8px;border-radius:90px;background:none;border:0;color:var(--fg);display:flex;align-items:center;justify-content:center;position:relative}
+.dot{position:absolute;top:6px;right:6px;width:12px;height:12px;border-radius:90px;background:var(--orange)}
+.map-footer .zoom{height:44px;background:none;border:0}
+</style>
+</head>
+<body>
+
+<!-- ######################################################################## -->
+<!-- PANTALLA 1 · HORARIOS (TIMELINE) · 1440 × 1024                          -->
+<!-- ######################################################################## -->
+<div class="frame-label">Pantalla 1 · Horarios (Timeline) <span>· 1440 × 1024 · node 1850:158791</span></div>
+<div class="frame" id="horarios">
+
+  <!-- TOP BAR (compartido) -->
+  <header class="topbar">
+    <button class="local" type="button" aria-label="Cambiar local">
+      <svg class="ic ic20" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <span class="logo">ISOLINA</span>
+      <span class="local-text"><small>Local</small><b>Isolina - Barranco</b></span>
+      <svg class="ic ic20" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <nav class="row8" aria-label="Fecha">
+      <button class="btn" type="button">Hoy</button>
+      <button class="btn btn-icon" type="button" aria-label="Día anterior"><svg class="ic" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="btn btn-selected" type="button">Vie., 17 Jul.</button>
+      <button class="btn btn-icon" type="button" aria-label="Día siguiente"><svg class="ic" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="btn btn-ghost" type="button">Todos los turnos <svg class="ic" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    </nav>
+    <div class="row8">
+      <button class="btn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2zM11 16a1 1 0 1 0 2 0 1 1 0 0 0-2 0M8 11V7a4 4 0 1 1 8 0v4"/></svg>Cerrar cupos</button>
+      <button class="btn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4a1 1 0 1 0 2 0 1 1 0 1 0-2 0M7 21l3-4M16 21l-2-4-3-3 1-6M6 12l2-3 4-1 3 3 3 1"/></svg>Walk-in</button>
+      <button class="btn btn-cta" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nueva reserva</button>
+      <button class="btn btn-icon" type="button" aria-label="Mensajes"><svg class="ic" viewBox="0 0 24 24"><path d="M8 9h8M8 13h6M9 18H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-3l-3 3z"/></svg></button>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- SIDEBAR (compartido) · en Figma el ítem activo es Libro en ambas pantallas -->
+    <nav class="sidemenu" aria-label="Secciones">
+      <a href="#reservas" class="active" aria-label="Libro" aria-current="page"><svg class="ic ic20 ic-fill" viewBox="0 0 24 24"><path d="M21.5 5.13a1 1 0 0 1 .5.87v13a1 1 0 0 1-1.5.87 8 8 0 0 0-7.5-.27V4.43a10 10 0 0 1 8.5.7M11 4.43v15.17a8 8 0 0 0-7.56.3A1 1 0 0 1 2 19V6a1 1 0 0 1 .5-.87 10 10 0 0 1 8.5-.7"/></svg></a>
+      <a href="#" aria-label="Mesas"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M14 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0M6 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0M22 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0M2 16h20M4 12v4M12 12v4M20 12v4"/></svg></a>
+      <a href="#" aria-label="Plano"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM9 4v16"/></svg></a>
+      <a href="#horarios" aria-label="Horarios"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 3v4M8 3v4M4 11h16M7 14h.01M10 14h.01M13 14h.01M16 14h.01M7 17h.01M10 17h.01M13 17h.01"/></svg></a>
+    </nav>
+
+    <!-- PANEL TIMELINE · 1376 px -->
+    <main class="timeline">
+      <div class="subbar">
+        <div class="tabs" role="tablist">
+          <button class="tab active" role="tab" aria-selected="true">Todos</button>
+          <button class="tab" role="tab">1er Piso</button>
+          <button class="tab" role="tab">2do Piso</button>
+          <button class="tab" role="tab">Terraza</button>
+          <button class="tab" role="tab">Almacen</button>
+          <button class="tab" role="tab">Barra</button>
+          <button class="tab" role="tab">Barra</button>
+          <button class="tab">+2</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <label class="search" style="width:352px"><svg class="ic" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6"/></svg><input type="search" placeholder="Buscar reserva" aria-label="Buscar reserva"></label>
+          <button class="btn btn-icon" type="button" aria-label="Ayuda"><svg class="ic" viewBox="0 0 24 24"><path d="M8 8a3.5 3 0 0 1 3.5-3h1A3.5 3 0 0 1 16 8a3 3 0 0 1-2 3 3 4 0 0 0-2 4M12 19v.01"/></svg></button>
+          <div class="zoom"><button type="button" aria-label="Acercar"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M7 10h6M10 7v6M21 21l-6-6"/></svg></button>130%<button type="button" aria-label="Alejar"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M7 10h6M21 21l-6-6"/></svg></button></div>
+        </div>
+      </div>
+
+      <!-- GRILLA: columna Mesa 128 + 6 columnas de 208 px (1248 / 6) -->
+      <div class="grid-wrap">
+        <div class="vlines"><i></i><i></i><i></i><i></i><i></i><i style="border:0"></i></div>
+
+        <div class="tl-row"><div class="tl-mesa"><b style="width:64px">Mesa</b><span>Max</span></div>
+          <div class="tl-hours"><span>12:00 PM</span><span>13:00 PM</span><span>14:00 PM</span><span>15:00 PM</span><span>16:00 PM</span><span>17:00 PM</span></div></div>
+
+        <div class="tl-section"><b>1er piso</b><span>2 Mesas</span></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M1</b><span>4</span></div><div class="tl-track">
+          <!-- 16:00 → left = 4h × 208 = 832 · 3h = 623 -->
+          <div class="res-bar" style="left:832px;width:623px"><span class="name"><svg class="ic ic-fill" viewBox="0 0 24 24"><path d="M21.5 5.13a1 1 0 0 1 .5.87v13a1 1 0 0 1-1.5.87 8 8 0 0 0-7.5-.27V4.43a10 10 0 0 1 8.5.7M11 4.43v15.17a8 8 0 0 0-7.56.3A1 1 0 0 1 2 19V6a1 1 0 0 1 .5-.87 10 10 0 0 1 8.5-.7"/></svg>Carlos Meneces (Buffet Almuerzo S/ 69.00)</span><span class="meta">14:00PM<span class="pax"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></span></div>
+        </div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M2</b><span>6</span></div><div class="tl-track">
+          <div class="res-bar" style="left:832px;width:623px"><span class="name"><svg class="ic ic-fill" viewBox="0 0 24 24"><path d="M21.5 5.13a1 1 0 0 1 .5.87v13a1 1 0 0 1-1.5.87 8 8 0 0 0-7.5-.27V4.43a10 10 0 0 1 8.5.7M11 4.43v15.17a8 8 0 0 0-7.56.3A1 1 0 0 1 2 19V6a1 1 0 0 1 .5-.87 10 10 0 0 1 8.5-.7"/></svg>Pedro Salas (Buffet Almuerzo S/ 69.00)</span><span class="meta">14:00PM<span class="pax"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></span></div>
+        </div></div>
+
+        <div class="tl-section"><b>2do piso</b><span>9 Mesas</span></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M3</b><span>4</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M4</b><span>6</span></div><div class="tl-track">
+          <!-- 14:00 → left = 2h × 208 = 416 -->
+          <div class="res-bar" style="left:416px;width:443px"><span class="name"><svg class="ic ic-fill" viewBox="0 0 24 24"><path d="M21.5 5.13a1 1 0 0 1 .5.87v13a1 1 0 0 1-1.5.87 8 8 0 0 0-7.5-.27V4.43a10 10 0 0 1 8.5.7M11 4.43v15.17a8 8 0 0 0-7.56.3A1 1 0 0 1 2 19V6a1 1 0 0 1 .5-.87 10 10 0 0 1 8.5-.7"/></svg>Daniela Castillo (A la Carta)</span><span class="meta">14:00PM<span class="pax"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></span></div>
+        </div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M5</b><span>2</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M6</b><span>2</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M7</b><span>4</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M8</b><span>8</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M9</b><span>6</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M10</b><span>2</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M11</b><span>4</span></div><div class="tl-track"></div></div>
+
+        <div class="tl-section"><b>Terraza</b><span>3 Mesas</span></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M12</b><span>6</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M13</b><span>2</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>M14</b><span>4</span></div><div class="tl-track"></div></div>
+
+        <div class="tl-section"><b>Barra</b><span>3 Mesas</span></div>
+        <div class="tl-row"><div class="tl-mesa"><b>B1</b><span>6</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>B2</b><span>2</span></div><div class="tl-track"></div></div>
+        <div class="tl-row"><div class="tl-mesa"><b>B3</b><span>4</span></div><div class="tl-track"></div></div>
+
+        <!-- Línea "ahora" · 13:28 → 128 + 1.47h × 208 = 434 -->
+        <div class="now" style="left:434px"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ######################################################################## -->
+<!-- PANTALLA 2 · VISTA DE RESERVAS (LIBRO) · 1440 × 1024                     -->
+<!-- ######################################################################## -->
+<div class="frame-label">Pantalla 2 · Vista de reservas (Libro) <span>· 1440 × 1024 · node 1850:134276</span></div>
+<div class="frame" id="reservas">
+
+  <!-- TOP BAR (compartido, idéntico a Pantalla 1) -->
+  <header class="topbar">
+    <button class="local" type="button" aria-label="Cambiar local">
+      <svg class="ic ic20" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <span class="logo">ISOLINA</span>
+      <span class="local-text"><small>Local</small><b>Isolina - Barranco</b></span>
+      <svg class="ic ic20" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <nav class="row8" aria-label="Fecha">
+      <button class="btn" type="button">Hoy</button>
+      <button class="btn btn-icon" type="button" aria-label="Día anterior"><svg class="ic" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="btn btn-selected" type="button">Vie., 17 Jul.</button>
+      <button class="btn btn-icon" type="button" aria-label="Día siguiente"><svg class="ic" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="btn btn-ghost" type="button">Todos los turnos <svg class="ic" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    </nav>
+    <div class="row8">
+      <button class="btn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2zM11 16a1 1 0 1 0 2 0 1 1 0 0 0-2 0M8 11V7a4 4 0 1 1 8 0v4"/></svg>Cerrar cupos</button>
+      <button class="btn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4a1 1 0 1 0 2 0 1 1 0 1 0-2 0M7 21l3-4M16 21l-2-4-3-3 1-6M6 12l2-3 4-1 3 3 3 1"/></svg>Walk-in</button>
+      <button class="btn btn-cta" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nueva reserva</button>
+      <button class="btn btn-icon" type="button" aria-label="Mensajes"><svg class="ic" viewBox="0 0 24 24"><path d="M8 9h8M8 13h6M9 18H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-3l-3 3z"/></svg></button>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- SIDEBAR (compartido) · ítem activo: Libro -->
+    <nav class="sidemenu" aria-label="Secciones">
+      <a href="#reservas" class="active" aria-label="Libro" aria-current="page"><svg class="ic ic20 ic-fill" viewBox="0 0 24 24"><path d="M21.5 5.13a1 1 0 0 1 .5.87v13a1 1 0 0 1-1.5.87 8 8 0 0 0-7.5-.27V4.43a10 10 0 0 1 8.5.7M11 4.43v15.17a8 8 0 0 0-7.56.3A1 1 0 0 1 2 19V6a1 1 0 0 1 .5-.87 10 10 0 0 1 8.5-.7"/></svg></a>
+      <a href="#" aria-label="Mesas"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M14 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0M6 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0M22 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0M2 16h20M4 12v4M12 12v4M20 12v4"/></svg></a>
+      <a href="#" aria-label="Plano"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM9 4v16"/></svg></a>
+      <a href="#horarios" aria-label="Horarios"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 3v4M8 3v4M4 11h16M7 14h.01M10 14h.01M13 14h.01M16 14h.01M7 17h.01M10 17h.01M13 17h.01"/></svg></a>
+    </nav>
+
+    <!-- CONTENEDOR 1376 = LISTA 432 + GAP 8 + MAPA 936 -->
+    <div class="split">
+
+      <!-- LISTA DE RESERVAS · 432 px -->
+      <aside class="list" aria-label="Reservas">
+        <div class="list-search">
+          <label class="search"><svg class="ic" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6"/></svg><input type="search" placeholder="Buscar" aria-label="Buscar"></label>
+          <button class="btn btn-icon" type="button" aria-label="Filtros" style="border-radius:90px"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M6 12h12M9 18h6"/></svg></button>
+        </div>
+
+        <div class="list-head">Reservas
+          <div style="display:flex;align-items:center;gap:16px">
+            <div class="counts">
+              <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6v13M12 6v13M21 6v13"/></svg>26</span>
+              <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>53</span>
+            </div>
+            <svg class="ic ic20" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>
+          </div>
+        </div>
+
+        <!-- GRUPO 12:30 -->
+        <div class="time-row">
+          <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7v5l3-2"/></svg>12:30</span>
+          <div class="counts">
+            <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6v13M12 6v13M21 6v13"/></svg>1</span>
+            <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>3/27</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="state"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M7 12l5 5L22 7M2 12l5 5M12 12l5-5"/></svg></span>
+          <div class="info"><div class="who"><b>Pablo Plans Dimanuel</b><span>2do Piso</span></div><span class="chip">A la Carta</span></div>
+          <div class="side">3<svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7.5l1.3 2.7 3 .4-2.2 2.1.5 3L12 14.3l-2.6 1.4.5-3-2.2-2.1 3-.4z"/></svg></div>
+          <span class="divider"></span>
+          <span class="table-no">M9</span>
+        </div>
+
+        <div class="card">
+          <span class="state"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M7 12l5 5L22 7M2 12l5 5M12 12l5-5"/></svg></span>
+          <div class="info"><div class="who"><b>Pablo Plans Dimanuel</b><span>2do Piso</span></div><span class="chip">A la Carta</span><span class="label">Etiqueta</span></div>
+          <div class="side">3<svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7.5l1.3 2.7 3 .4-2.2 2.1.5 3L12 14.3l-2.6 1.4.5-3-2.2-2.1 3-.4z"/></svg></div>
+          <span class="divider"></span>
+          <span class="table-no">M9</span>
+        </div>
+
+        <div class="card last">
+          <span class="state"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6v13M12 6v13M21 6v13"/></svg></span>
+          <div class="info"><div class="who"><b>Pablo Plans Dimanuel</b><span>2do Piso</span></div><span class="chip">A la Carta</span></div>
+          <div class="side">4<svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7.5l1.3 2.7 3 .4-2.2 2.1.5 3L12 14.3l-2.6 1.4.5-3-2.2-2.1 3-.4z"/></svg></div>
+          <span class="divider"></span>
+          <span class="table-no">M9</span>
+        </div>
+
+        <!-- GRUPO 12:45 -->
+        <div class="time-row">
+          <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7v5l3-2"/></svg>12:45</span>
+          <div class="counts">
+            <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0 9 9 0 0 1 9 0M3 6v13M12 6v13M21 6v13"/></svg>3</span>
+            <span class="count"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>6/38</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="state"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M7 12l5 5L22 7M2 12l5 5M12 12l5-5"/></svg></span>
+          <div class="info"><div class="who"><b>Pablo Plans Dimanuel</b><span>2do Piso</span></div><span class="chip">A la Carta</span></div>
+          <div class="side">5<svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7.5l1.3 2.7 3 .4-2.2 2.1.5 3L12 14.3l-2.6 1.4.5-3-2.2-2.1 3-.4z"/></svg></div>
+          <span class="divider"></span>
+          <span class="table-no">M9</span>
+        </div>
+      </aside>
+
+      <!-- MAPA DE MESAS · 936 px (flex:1) -->
+      <section class="map" aria-label="Mapa de mesas">
+        <div class="subbar">
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab">1er Piso</button>
+            <button class="tab active" role="tab" aria-selected="true">2do Piso</button>
+            <button class="tab" role="tab">Terraza</button>
+            <button class="tab" role="tab">Almacen</button>
+            <button class="tab" role="tab">Barra</button>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <!-- Lienzo en coordenadas BASE 100 %; transform: scale(var(--map-zoom)) -->
+          <div class="canvas">
+            <!-- separadores / muebles -->
+            <i class="sep" style="left:211px;top:173px;width:154px;height:23px"></i>
+            <i class="sep" style="left:167px;top:9px;width:45px;height:39px"></i>
+            <i class="sep" style="left:39px;top:255px;width:94px;height:24px"></i>
+            <i class="sep" style="left:10px;top:593px;width:115px;height:20px"></i>
+            <i class="sep" style="left:171px;top:595px;width:108px;height:20px"></i>
+            <i class="sep" style="left:348px;top:595px;width:139px;height:20px"></i>
+            <i class="sep" style="left:463px;top:538px;width:36px;height:33px"></i>
+            <i class="sep" style="left:340px;top:463px;width:121px;height:12px"></i>
+            <i class="sep" style="left:354px;top:299px;width:120px;height:12px"></i>
+            <i class="sep" style="left:167px;top:9px;width:366px;height:3px"></i>
+
+            <!-- Mesa cuadrada (plantilla) · wrapper 70 × 86 -->
+            <div class="mesa" style="left:254px;top:31px;width:70px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <div class="mesa" style="left:442px;top:32px;width:70px"><span class="mesa-no">C1</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <div class="mesa" style="left:56px;top:135px;width:70px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <div class="mesa" style="left:377px;top:164px;width:70px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <div class="mesa" style="left:46px;top:325px;width:70px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <div class="mesa" style="left:366px;top:324px;width:70px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <!-- bloqueada -->
+            <div class="mesa" style="left:195px;top:380px;width:70px"><span class="mesa-no">C2 <span class="blocked">bloqueada</span></span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <!-- Redonda grande · 60 × 60 -->
+            <div class="mesa" style="left:191px;top:214px;width:82px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl lg"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <!-- Redondas chicas · 40 × 40 -->
+            <div class="mesa small" style="left:161px;top:65px;width:66px"><span class="mesa-no">C2</span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl sm"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+            <div class="mesa small" style="left:372px;top:480px;width:66px"><span class="mesa-no">C2 <span class="blocked">bloqueada</span></span><div class="mesa-body"><i class="chair-h"></i><div class="mesa-mid"><i class="chair-v"></i><div class="tbl sm"><span class="hora">12:45 PM</span><span class="nom">Dinithi Kegoda</span><span class="pp"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>2</span></div><i class="chair-v r"></i></div><i class="chair-h b"></i></div></div>
+          </div>
+        </div>
+
+        <footer class="map-footer">
+          <div class="foot-btns">
+            <button type="button" aria-label="Chat"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 20l1.3-3.9A9 8 0 1 1 7.7 19L3 20"/></svg></button>
+            <button type="button" aria-label="Notificaciones"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M10 5a2 2 0 1 1 4 0 7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6M9 17v1a3 3 0 0 0 6 0v-1"/></svg><span class="dot"></span></button>
+            <button type="button" aria-label="Información"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M12 9h.01M11 12h1v4h1"/></svg></button>
+            <button type="button" aria-label="Pantalla completa"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M16 4h4v4M14 10l6-6M8 20H4v-4M4 20l6-6M16 20h4v-4M14 14l6 6M8 4H4v4M4 4l6 6"/></svg></button>
+          </div>
+          <div class="zoom"><button type="button" aria-label="Acercar"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M7 10h6M10 7v6M21 21l-6-6"/></svg></button>130%<button type="button" aria-label="Alejar"><svg class="ic ic20" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M7 10h6M21 21l-6-6"/></svg></button></div>
+        </footer>
+      </section>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

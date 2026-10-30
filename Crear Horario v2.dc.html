@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+html,body{margin:0;background:#0b0b0c;color:#fafafa;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input,textarea{font-family:inherit;color:inherit}
+a{color:#fafafa}a:hover{color:#ff8c1a}
+input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.85;cursor:pointer}
+input[type=number]::-webkit-inner-spin-button{opacity:0.4}
+input:disabled{opacity:0.45}
+</style>
+</helmet>
+<div style="position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);display:flex;padding:{{ outerPad }};font-family:Inter,system-ui,sans-serif;color:#fafafa">
+  <sc-if value="{{ anyMenu }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:5"></div>
+  </sc-if>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:#0d0d0f;border:1px solid #27272a;border-radius:{{ modalRadius }};overflow:hidden;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+
+    <!-- HEADER -->
+    <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;border-bottom:1px solid #1f1f22">
+      <span style="font-size:22px;font-weight:600">Crear Horario</span>
+      <button onClick="{{ close }}" aria-label="Cerrar" style="width:44px;height:44px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#1f1f22"><i class="ti ti-x"></i></button>
+    </div>
+
+    <!-- BODY -->
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 24px 24px">
+      <div style="display:grid;grid-template-columns:{{ gridCols }};gap:16px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+
+          <!-- SERVICIO -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:{{ zSvc }}">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secSvc.bg }};border:{{ secSvc.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secSvc.checkOp }}"></i></span>
+                <span style="font-size:18px;font-weight:600">Servicio (tipo de consumo)</span>
+                <sc-if value="{{ secSvc.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secSvc.tagColor }}">{{ secSvc.tag }}</span></sc-if>
+              </div>
+              <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Selecciona el tipo de consumo y su color para identificar el horario.</span>
+            </div>
+            <div style="margin-left:{{ indent }};position:relative">
+              <button onClick="{{ toggleSvc }}" style="width:100%;height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;cursor:pointer;text-align:left;transition:border-color 150ms" style-hover="border-color:#71717a">
+                <sc-if value="{{ hasSvc }}" hint-placeholder-val="{{ false }}">
+                  <span style="width:28px;height:28px;flex:none;border-radius:6px;background:{{ effColor }}"></span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3"><span style="font-size:12px;color:#a1a1aa">Tipo de consumo</span><span style="font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ svcName }}</span></span>
+                </sc-if>
+                <sc-if value="{{ noSvc }}" hint-placeholder-val="{{ true }}"><span style="flex:1;font-size:16px">Selecciona servicio</span></sc-if>
+                <i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i>
+              </button>
+              <sc-if value="{{ svcOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:66px;left:0;right:0;z-index:20;background:#1c1c1f;border:1px solid #3f3f46;border-radius:12px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5);overflow:hidden;display:flex;flex-direction:column">
+                  <sc-if value="{{ svcList }}" hint-placeholder-val="{{ true }}">
+                    <div style="padding:8px;border-bottom:1px solid #27272a">
+                      <label style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid #3f3f46;border-radius:10px;background:#141416;color:#71717a">
+                        <i class="ti ti-search" style="font-size:18px"></i>
+                        <input value="{{ svcQ }}" onChange="{{ onSvcQ }}" placeholder="Buscar tipo de consumo" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font-size:15px">
+                      </label>
+                    </div>
+                    <div style="max-height:220px;overflow-y:auto;padding:6px">
+                      <sc-for list="{{ svcOpts }}" as="o" hint-placeholder-count="3">
+                        <button onClick="{{ o.pick }}" style="width:100%;min-height:48px;display:flex;align-items:center;gap:12px;padding:8px 10px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;text-align:left;font-size:15px" style-hover="background:#27272a">
+                          <span style="width:22px;height:22px;flex:none;border-radius:5px;background:{{ o.hex }}"></span>
+                          <span style="flex:1;min-width:0">{{ o.n }}</span>
+                          <i class="ti ti-check" style="font-size:18px;opacity:{{ o.checkOp }}"></i>
+                        </button>
+                      </sc-for>
+                      <sc-if value="{{ svcEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:14px 10px;font-size:14px;color:#a1a1aa">Sin resultados para la búsqueda.</div></sc-if>
+                    </div>
+                    <sc-if value="{{ hasSvc }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:12px 16px;border-top:1px solid #27272a;display:flex;flex-direction:column;gap:10px">
+                        <span style="font-size:13px;color:#a1a1aa">Color del horario</span>
+                        <div style="display:flex;flex-wrap:wrap;gap:8px">
+                          <sc-for list="{{ colorSw }}" as="c" hint-placeholder-count="10">
+                            <button onClick="{{ c.pick }}" aria-label="{{ c.hex }}" style="width:32px;height:32px;border-radius:7px;border:2px solid {{ c.ring }};background:{{ c.hex }};cursor:pointer;transition:transform 150ms"></button>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <button onClick="{{ goNewSvc }}" style="flex:none;height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border:0;border-top:1px solid #27272a;background:#18181b;cursor:pointer;font-size:15px;font-weight:500;color:#ff8c1a;text-align:left" style-hover="background:#27272a"><i class="ti ti-plus" style="font-size:18px"></i>Agregar tipo de consumo</button>
+                  </sc-if>
+                  <sc-if value="{{ svcNew }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <button onClick="{{ backSvc }}" aria-label="Volver" style="width:36px;height:36px;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-arrow-left"></i></button>
+                        <span style="font-size:18px;font-weight:600">Servicio (tipo de consumo)</span>
+                      </div>
+                      <label style="height:60px;display:flex;align-items:center;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#141416">
+                        <input value="{{ newName }}" onChange="{{ onNewName }}" placeholder="Nombre del servicio *" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font-size:16px">
+                      </label>
+                      <span style="font-size:15px;color:#a1a1aa">Color</span>
+                      <div style="display:grid;grid-template-columns:repeat(5,44px);gap:10px">
+                        <sc-for list="{{ newSw }}" as="c" hint-placeholder-count="10">
+                          <button onClick="{{ c.pick }}" aria-label="{{ c.hex }}" style="width:44px;height:44px;border-radius:8px;border:2px solid {{ c.ring }};background:{{ c.hex }};cursor:pointer"></button>
+                        </sc-for>
+                      </div>
+                      <span style="font-size:15px;color:#a1a1aa">Color Personalizado</span>
+                      <label style="height:52px;width:200px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#141416">
+                        <span style="width:22px;height:22px;flex:none;border-radius:5px;background:{{ newColor }}"></span>
+                        <input value="{{ newHex }}" onChange="{{ onNewHex }}" maxlength="7" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;text-transform:uppercase">
+                      </label>
+                      <div style="display:flex;justify-content:flex-end;gap:10px">
+                        <button onClick="{{ backSvc }}" style="height:48px;padding:0 20px;border-radius:999px;border:1px solid #3f3f46;background:transparent;cursor:pointer;font-size:15px" style-hover="background:#27272a">Cancelar</button>
+                        <button onClick="{{ createSvc }}" style="height:48px;padding:0 20px;border-radius:999px;border:0;background:{{ createBg }};color:{{ createFg }};cursor:{{ createCursor }};font-size:15px;font-weight:600" style-hover="filter:brightness(1.08)">Crear Servicio</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- TURNO -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secTurno.bg }};border:{{ secTurno.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secTurno.checkOp }}"></i></span>
+                <span style="font-size:18px;font-weight:600">Turno</span>
+                <i class="ti ti-info-circle" title="Desayuno, almuerzo o cena. Al desactivar un turno se desactivan todos sus horarios." style="font-size:19px;color:#a1a1aa;cursor:help"></i>
+                <sc-if value="{{ secTurno.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secTurno.tagColor }}">{{ secTurno.tag }}</span></sc-if>
+              </div>
+              <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Un turno agrupa varios horarios que puedes activar o desactivar en conjunto.</span>
+            </div>
+            <div style="margin-left:{{ indent }};display:flex;flex-wrap:wrap;gap:12px">
+              <sc-for list="{{ turnoOpts }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.pick }}" style="height:48px;padding:0 22px;border-radius:999px;border:1px solid {{ t.border }};background:{{ t.bg }};cursor:pointer;font-size:16px;font-weight:500;display:flex;align-items:center;gap:8px;transition:background 150ms,border-color 150ms" style-hover="border-color:#71717a"><sc-if value="{{ t.on }}" hint-placeholder-val="{{ false }}"><i class="ti ti-check" style="font-size:18px;color:#ff8c1a"></i></sc-if>{{ t.n }}</button>
+              </sc-for>
+              <button onClick="{{ addTurno }}" aria-label="Agregar turno" title="Agregar turno" style="width:48px;height:48px;border-radius:999px;border:1px solid #3f3f46;background:transparent;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-plus"></i></button>
+            </div>
+          </div>
+
+          <!-- CUANDO -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:{{ zRep }}">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secCuando.bg }};border:{{ secCuando.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secCuando.checkOp }}"></i></span>
+                <span style="font-size:18px;font-weight:600">Cuando</span>
+                <sc-if value="{{ secCuando.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secCuando.tagColor }}">{{ secCuando.tag }}</span></sc-if>
+              </div>
+              <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Elige la fecha, la hora y si se repite. La hora define el turno</span>
+            </div>
+            <div style="margin-left:{{ indent }};display:grid;grid-template-columns:{{ rowCols }};gap:16px 20px;align-items:start">
+              <span style="font-size:15px;color:#a1a1aa;padding-top:{{ labelPad }}">Inicia</span>
+              <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+                <div style="display:flex;flex-wrap:wrap;gap:12px">
+                  <label style="flex:2 1 200px;height:60px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;transition:border-color 150ms;cursor:pointer" style-hover="border-color:#71717a">
+                    <span style="font-size:12px;color:#a1a1aa">Fecha de inicio</span>
+                    <input type="date" value="{{ date }}" onChange="{{ onDate }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;color-scheme:dark;width:100%">
+                  </label>
+                  <label style="flex:1 1 130px;height:60px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid {{ timeBorder }};border-radius:12px;background:#1c1c1f;transition:border-color 150ms;cursor:pointer" style-hover="border-color:#71717a">
+                    <span style="font-size:12px;color:#a1a1aa">Hora desde:</span>
+                    <input type="time" value="{{ from }}" onChange="{{ onFrom }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;color-scheme:dark;width:100%">
+                  </label>
+                  <label style="flex:1 1 130px;height:60px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid {{ timeBorder }};border-radius:12px;background:#1c1c1f;transition:border-color 150ms;cursor:pointer" style-hover="border-color:#71717a">
+                    <span style="font-size:12px;color:#a1a1aa">Hora hasta:</span>
+                    <input type="time" value="{{ to }}" onChange="{{ onTo }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;color-scheme:dark;width:100%">
+                  </label>
+                </div>
+                <sc-if value="{{ timeError }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#f87171">La hora hasta debe ser posterior a la hora desde.</span></sc-if>
+              </div>
+              <span style="font-size:15px;color:#a1a1aa;padding-top:{{ labelPad }}">Se repite</span>
+              <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+                <div style="position:relative;max-width:420px">
+                  <button onClick="{{ toggleRep }}" style="width:100%;height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;cursor:pointer;text-align:left;font-size:16px;transition:border-color 150ms" style-hover="border-color:#71717a"><span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ repLabel }}</span><i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i></button>
+                  <sc-if value="{{ repOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:66px;left:0;right:0;z-index:20;background:#1c1c1f;border:1px solid #3f3f46;border-radius:12px;padding:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+                      <sc-for list="{{ repOpts }}" as="o" hint-placeholder-count="6">
+                        <button onClick="{{ o.pick }}" style="width:100%;height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 12px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;text-align:left;font-size:16px" style-hover="background:#27272a">{{ o.n }}<i class="ti ti-check" style="font-size:18px;opacity:{{ o.checkOp }}"></i></button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ showDays }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-wrap:wrap;gap:8px">
+                    <sc-for list="{{ dayChips }}" as="d" hint-placeholder-count="7">
+                      <button onClick="{{ d.pick }}" style="width:48px;height:48px;border-radius:999px;border:0;background:{{ d.bg }};color:{{ d.color }};cursor:pointer;font-size:15px;font-weight:500;transition:background 150ms" style-hover="filter:brightness(1.2)">{{ d.n }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ showEnd }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <span style="font-size:15px;color:#a1a1aa">Termina</span>
+                    <button onClick="{{ endNever }}" style="height:48px;display:flex;align-items:center;gap:12px;border:0;background:transparent;cursor:pointer;font-size:16px;padding:0;text-align:left;width:fit-content">
+                      <span style="width:22px;height:22px;border-radius:50%;border:2px solid {{ rNever.border }};display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:{{ rNever.dot }}"></span></span>Nunca
+                    </button>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                      <button onClick="{{ endOn }}" style="width:150px;height:48px;display:flex;align-items:center;gap:12px;border:0;background:transparent;cursor:pointer;font-size:16px;padding:0;text-align:left">
+                        <span style="width:22px;height:22px;border-radius:50%;border:2px solid {{ rOn.border }};display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:{{ rOn.dot }}"></span></span>El
+                      </button>
+                      <input type="date" value="{{ until }}" onChange="{{ onUntil }}" onFocus="{{ endOn }}" style="height:48px;width:200px;padding:0 14px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;color:{{ rOn.text }};font-size:15px;outline:none;color-scheme:dark">
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                      <button onClick="{{ endAfter }}" style="width:150px;height:48px;display:flex;align-items:center;gap:12px;border:0;background:transparent;cursor:pointer;font-size:16px;padding:0;text-align:left">
+                        <span style="width:22px;height:22px;border-radius:50%;border:2px solid {{ rAfter.border }};display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:{{ rAfter.dot }}"></span></span>Despues de
+                      </button>
+                      <input type="number" min="1" value="{{ times }}" onChange="{{ onTimes }}" onFocus="{{ endAfter }}" style="height:48px;width:110px;padding:0 14px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;color:{{ rAfter.text }};font-size:15px;outline:none;color-scheme:dark">
+                      <span style="font-size:15px;color:#a1a1aa">Veces</span>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;background:#1c1c1f;font-size:15px;color:#a1a1aa"><i class="ti ti-repeat" style="font-size:18px;flex:none"></i><span>{{ repSummary }}</span></div>
+          </div>
+
+          <!-- CONFIGURACION -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secCfg.bg }};border:{{ secCfg.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secCfg.checkOp }}"></i></span>
+                <span style="font-size:18px;font-weight:600">Configuración del horario</span>
+                <sc-if value="{{ secCfg.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secCfg.tagColor }}">{{ secCfg.tag }}</span></sc-if>
+              </div>
+              <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Define el máximo de personas por hora y la hora límite para reservar.</span>
+            </div>
+            <div style="margin-left:{{ indent }};display:grid;grid-template-columns:{{ rowCols }};gap:16px 20px;align-items:start">
+              <span style="font-size:15px;color:#a1a1aa;padding-top:{{ labelPad }}">Capacidad</span>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;min-width:0">
+                <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px">
+                  <label style="height:60px;display:flex;align-items:center;gap:10px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;transition:border-color 150ms" style-hover="border-color:#71717a">
+                    <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:12px;color:#a1a1aa">Pax máximo por hora</span><input type="number" min="0" value="{{ pax }}" onChange="{{ onPax }}" placeholder="Sin límite" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;width:100%"></span>
+                    <i class="ti ti-user" style="font-size:20px;color:#d4d4d8"></i>
+                  </label>
+                  <span style="font-size:13px;color:#a1a1aa;padding:0 4px">Al pasar este máximo, se cerraran las reservas</span>
+                </div>
+                <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px">
+                  <label style="height:60px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;transition:border-color 150ms;cursor:pointer" style-hover="border-color:#71717a">
+                    <span style="font-size:12px;color:#a1a1aa">Hora límite de reserva</span>
+                    <input type="time" value="{{ limit }}" onChange="{{ onLimit }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;color-scheme:dark;width:100%">
+                  </label>
+                  <span style="font-size:13px;color:#a1a1aa;padding:0 4px">Solo podrán reservar hasta este horario</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+
+          <!-- LISTA DE ESPERA -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:flex-start;gap:16px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secWait.bg }};border:{{ secWait.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secWait.checkOp }}"></i></span>
+                  <span style="font-size:18px;font-weight:600">Lista de espera</span>
+                  <i class="ti ti-info-circle" title="Cuando no hay mesas, los comensales pueden quedar en espera." style="font-size:19px;color:#a1a1aa;cursor:help"></i>
+                  <sc-if value="{{ secWait.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secWait.tagColor }}">{{ secWait.tag }}</span></sc-if>
+                </div>
+                <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Define cuántas reservas pueden esperar por una mesa disponible.</span>
+              </div>
+              <button onClick="{{ tgWait.toggle }}" role="switch" aria-label="Lista de espera" style="width:52px;height:30px;flex:none;border-radius:999px;border:0;background:{{ tgWait.bg }};position:relative;cursor:pointer;transition:background 150ms;margin-top:4px"><span style="position:absolute;top:3px;left:{{ tgWait.l }};width:24px;height:24px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+            </div>
+            <sc-if value="{{ waitOn }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-left:{{ indent }};display:grid;grid-template-columns:{{ rowCols }};gap:16px 20px;align-items:center">
+                <span style="font-size:15px;color:#a1a1aa">Máximo en espera</span>
+                <label style="height:60px;max-width:260px;display:flex;align-items:center;gap:10px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f">
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:12px;color:#a1a1aa">Reservas en espera</span><input type="number" min="1" value="{{ waitN }}" onChange="{{ onWaitN }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;width:100%"></span>
+                </label>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- VENTANAS -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:{{ zAnt }}">
+            <div style="display:flex;align-items:flex-start;gap:16px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secAnt.bg }};border:{{ secAnt.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secAnt.checkOp }}"></i></span>
+                  <span style="font-size:18px;font-weight:600">Ventanas de anticipación</span>
+                  <i class="ti ti-info-circle" title="Tiempo mínimo antes del horario para reservar o modificar." style="font-size:19px;color:#a1a1aa;cursor:help"></i>
+                  <sc-if value="{{ secAnt.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secAnt.tagColor }}">{{ secAnt.tag }}</span></sc-if>
+                </div>
+                <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Define con cuántos minutos de anticipación se aceptan nuevas reservas y hasta cuándo se pueden modificar las existentes.</span>
+              </div>
+              <button onClick="{{ tgAnt.toggle }}" role="switch" aria-label="Ventanas de anticipación" style="width:52px;height:30px;flex:none;border-radius:999px;border:0;background:{{ tgAnt.bg }};position:relative;cursor:pointer;transition:background 150ms;margin-top:4px"><span style="position:absolute;top:3px;left:{{ tgAnt.l }};width:24px;height:24px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+            </div>
+            <sc-if value="{{ antOn }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-left:{{ indent }};display:grid;grid-template-columns:{{ rowCols }};gap:16px 20px;align-items:start">
+                <span style="font-size:15px;color:#a1a1aa;padding-top:{{ labelPad }}">De anticipación</span>
+                <div style="display:flex;flex-wrap:wrap;gap:12px;min-width:0">
+                  <sc-for list="{{ durFields }}" as="df" hint-placeholder-count="2">
+                    <div style="flex:1 1 200px;position:relative;z-index:{{ df.z }}">
+                      <button onClick="{{ df.toggle }}" style="width:100%;height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;cursor:pointer;text-align:left;transition:border-color 150ms" style-hover="border-color:#71717a">
+                        <span style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3"><span style="font-size:12px;color:#a1a1aa">{{ df.label }}</span><span style="font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ df.value }}</span></span>
+                        <i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i>
+                      </button>
+                      <sc-if value="{{ df.isOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="position:absolute;top:66px;left:0;width:max(100%,300px);z-index:20;background:#1c1c1f;border:1px solid #3f3f46;border-radius:12px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5);overflow:hidden">
+                          <div style="padding:12px;border-bottom:1px solid #27272a;display:flex;flex-direction:column;gap:8px">
+                            <span style="font-size:12px;color:#a1a1aa">Personalizado</span>
+                            <div style="display:flex;gap:8px;align-items:center">
+                              <input type="number" min="0" value="{{ durN }}" onChange="{{ onDurN }}" style="width:70px;height:40px;padding:0 10px;border:1px solid #3f3f46;border-radius:8px;background:#141416;outline:none;color:#fafafa;font-size:15px">
+                              <div style="display:flex;gap:2px;padding:2px;border:1px solid #3f3f46;border-radius:8px;background:#141416">
+                                <sc-for list="{{ durUnits }}" as="u" hint-placeholder-count="3">
+                                  <button onClick="{{ u.pick }}" style="height:34px;padding:0 10px;border:0;border-radius:6px;background:{{ u.bg }};cursor:pointer;font-size:13px;font-weight:500">{{ u.n }}</button>
+                                </sc-for>
+                              </div>
+                              <button onClick="{{ df.apply }}" style="margin-left:auto;height:40px;padding:0 12px;border:0;border-radius:8px;background:#fafafa;color:#09090b;cursor:pointer;font-size:13px;font-weight:600" style-hover="background:#e4e4e7">Aplicar</button>
+                            </div>
+                          </div>
+                          <div style="max-height:260px;overflow-y:auto;padding:6px">
+                            <sc-for list="{{ df.opts }}" as="o" hint-placeholder-count="6">
+                              <button onClick="{{ o.pick }}" style="width:100%;height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;text-align:left;font-size:15px" style-hover="background:#27272a">
+                                <span style="flex:1">{{ o.n }}</span><span style="font-size:13px;color:#a1a1aa">{{ o.mins }}</span><i class="ti ti-check" style="font-size:16px;opacity:{{ o.checkOp }}"></i>
+                              </button>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- ZONAS -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:{{ zZone }}">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secZonas.bg }};border:{{ secZonas.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secZonas.checkOp }}"></i></span>
+                <span style="font-size:18px;font-weight:600">Zonas</span>
+                <sc-if value="{{ secZonas.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secZonas.tagColor }}">{{ secZonas.tag }}</span></sc-if>
+              </div>
+              <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Selecciona las zonas donde se aceptarán reservas y configura el tiempo promedio de servicio y rotación de cada una.</span>
+            </div>
+            <div style="margin-left:{{ indent }};display:grid;grid-template-columns:{{ rowCols }};gap:16px 20px;align-items:center">
+              <span style="font-size:15px;color:#a1a1aa">Se aceptaran para</span>
+              <div style="position:relative;max-width:320px">
+                <button onClick="{{ toggleZoneMode }}" style="width:100%;height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;cursor:pointer;text-align:left;font-size:16px;transition:border-color 150ms" style-hover="border-color:#71717a"><span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ zoneModeLabel }}</span><i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i></button>
+                <sc-if value="{{ zoneModeOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:66px;left:0;right:0;z-index:20;background:#1c1c1f;border:1px solid #3f3f46;border-radius:12px;padding:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+                    <sc-for list="{{ zoneModeOpts }}" as="o" hint-placeholder-count="2">
+                      <button onClick="{{ o.pick }}" style="width:100%;height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 12px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;text-align:left;font-size:16px" style-hover="background:#27272a">{{ o.n }}<i class="ti ti-check" style="font-size:18px;opacity:{{ o.checkOp }}"></i></button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ zoneAll }}" hint-placeholder-val="{{ true }}">
+                <span style="font-size:15px;color:#a1a1aa">¿Acepta rotación de mesas?</span>
+                <button onClick="{{ tgRot.toggle }}" role="switch" aria-label="Rotación de mesas" style="width:52px;height:30px;border-radius:999px;border:0;background:{{ tgRot.bg }};position:relative;cursor:pointer;transition:background 150ms"><span style="position:absolute;top:3px;left:{{ tgRot.l }};width:24px;height:24px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+                <sc-if value="{{ rotOn }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:15px;color:#a1a1aa">Tiempo de servicio promedio</span>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <input type="number" min="0" value="{{ rotMin }}" onChange="{{ onRotMin }}" style="height:48px;width:120px;padding:0 14px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;outline:none;color:#fafafa;font-size:16px">
+                    <span style="font-size:15px;color:#a1a1aa">Minutos</span>
+                  </div>
+                </sc-if>
+              </sc-if>
+            </div>
+            <sc-if value="{{ zoneSel }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-left:{{ indent }};display:flex;flex-direction:column">
+                <sc-if value="{{ zoneWide }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid;grid-template-columns:{{ zoneCols }};gap:16px;padding:0 16px 12px;font-size:15px;color:#a1a1aa">
+                    <span>Zona/Sub-zona</span><span>Tiempo de rotación</span><span>Tiempo de servicio promedio</span>
+                  </div>
+                </sc-if>
+                <sc-for list="{{ zoneRows }}" as="z" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:{{ zoneCols }};gap:12px 16px;align-items:center;padding:16px;border-top:1px solid #27272a">
+                    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+                      <button onClick="{{ z.toggle }}" style="display:flex;align-items:center;gap:12px;border:0;background:transparent;cursor:pointer;font-size:16px;padding:0;text-align:left">
+                        <span style="width:20px;height:20px;flex:none;border-radius:5px;border:1px solid {{ z.cbBorder }};background:{{ z.cbBg }};color:#1a0d00;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ z.cbOp }}"></i></span>{{ z.n }}
+                      </button>
+                      <sc-if value="{{ z.hasSub }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ z.toggleSub }}" style="display:flex;align-items:center;gap:12px;border:0;background:transparent;cursor:pointer;font-size:15px;padding:0 0 0 24px;text-align:left;color:#d4d4d8">
+                          <span style="width:20px;height:20px;flex:none;border-radius:5px;border:1px solid {{ z.sbBorder }};background:{{ z.sbBg }};color:#1a0d00;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ z.sbOp }}"></i></span>{{ z.sub }}
+                        </button>
+                      </sc-if>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;opacity:{{ z.rowOp }}">
+                      <sc-if value="{{ zoneNarrow }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#a1a1aa;width:140px">Tiempo de rotación</span></sc-if>
+                      <button onClick="{{ z.toggleRot }}" role="switch" aria-label="Rotación {{ z.n }}" style="width:52px;height:30px;border-radius:999px;border:0;background:{{ z.rotBg }};position:relative;cursor:pointer;transition:background 150ms"><span style="position:absolute;top:3px;left:{{ z.rotL }};width:24px;height:24px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;opacity:{{ z.rowOp }}">
+                      <sc-if value="{{ zoneNarrow }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#a1a1aa;width:140px">Servicio promedio</span></sc-if>
+                      <input type="number" min="0" value="{{ z.min }}" onChange="{{ z.onMin }}" disabled="{{ z.minDisabled }}" style="height:48px;width:110px;padding:0 14px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;outline:none;color:#fafafa;font-size:16px">
+                      <span style="font-size:15px;color:#a1a1aa">Minutos</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- COBROS -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:{{ zCobro }}">
+            <div style="display:flex;align-items:flex-start;gap:16px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secCobro.bg }};border:{{ secCobro.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secCobro.checkOp }}"></i></span>
+                  <span style="font-size:18px;font-weight:600">Cobros en reservas</span>
+                  <i class="ti ti-info-circle" title="Solicita una garantía o un cobro al reservar." style="font-size:19px;color:#a1a1aa;cursor:help"></i>
+                  <sc-if value="{{ secCobro.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secCobro.tagColor }}">{{ secCobro.tag }}</span></sc-if>
+                </div>
+                <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Elige la fecha, la hora y si se repite. La hora define el turno</span>
+              </div>
+              <button onClick="{{ tgCobro.toggle }}" role="switch" aria-label="Cobros en reservas" style="width:52px;height:30px;flex:none;border-radius:999px;border:0;background:{{ tgCobro.bg }};position:relative;cursor:pointer;transition:background 150ms;margin-top:4px"><span style="position:absolute;top:3px;left:{{ tgCobro.l }};width:24px;height:24px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+            </div>
+            <sc-if value="{{ cobroOn }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <span style="font-size:16px;font-weight:600">Tipo de cobro</span>
+                <div style="display:grid;grid-template-columns:{{ pairCols }};gap:12px">
+                  <sc-for list="{{ cobroFields }}" as="cf" hint-placeholder-count="7">
+                    <div style="position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;z-index:{{ cf.z }}">
+                      <sc-if value="{{ cf.isSelect }}" hint-placeholder-val="{{ true }}">
+                        <button onClick="{{ cf.toggle }}" style="width:100%;height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;cursor:pointer;text-align:left;transition:border-color 150ms" style-hover="border-color:#71717a">
+                          <span style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3"><span style="font-size:12px;color:#a1a1aa">{{ cf.label }}</span><span style="font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cf.value }}</span></span>
+                          <i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i>
+                        </button>
+                        <sc-if value="{{ cf.isOpen }}" hint-placeholder-val="{{ false }}">
+                          <div style="position:absolute;top:66px;left:0;right:0;z-index:20;background:#1c1c1f;border:1px solid #3f3f46;border-radius:12px;padding:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5);max-height:260px;overflow-y:auto">
+                            <sc-for list="{{ cf.opts }}" as="o" hint-placeholder-count="3">
+                              <button onClick="{{ o.pick }}" style="width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 12px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;text-align:left;font-size:15px" style-hover="background:#27272a">{{ o.n }}<i class="ti ti-check" style="font-size:16px;opacity:{{ o.checkOp }}"></i></button>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                      </sc-if>
+                      <sc-if value="{{ cf.isInput }}" hint-placeholder-val="{{ false }}">
+                        <label style="height:60px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;transition:border-color 150ms" style-hover="border-color:#71717a">
+                          <span style="font-size:12px;color:#a1a1aa">{{ cf.label }}</span>
+                          <span style="display:flex;align-items:center;gap:4px;font-size:16px">{{ cf.prefix }}<input type="number" min="0" value="{{ cf.value }}" onChange="{{ cf.onChange }}" placeholder="{{ cf.ph }}" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0"></span>
+                        </label>
+                      </sc-if>
+                      <sc-if value="{{ cf.hint }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#a1a1aa;padding:0 4px">{{ cf.hint }}</span></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+                <span style="font-size:16px;font-weight:600;margin-top:4px">Texto para el cliente</span>
+                <label style="height:60px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;transition:border-color 150ms" style-hover="border-color:#71717a">
+                  <span style="font-size:12px;color:#a1a1aa">Título</span>
+                  <input value="{{ titulo }}" onChange="{{ onTitulo }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;padding:0;width:100%">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:4px;padding:12px 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;transition:border-color 150ms" style-hover="border-color:#71717a">
+                  <span style="font-size:12px;color:#a1a1aa">Texto</span>
+                  <textarea rows="3" value="{{ texto }}" onChange="{{ onTexto }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:16px;line-height:1.5;padding:0;width:100%;resize:vertical"></textarea>
+                </label>
+                <div style="border:1px solid #27272a;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px">
+                  <span style="font-size:18px;font-weight:600">Pasarelas de pago</span>
+                  <div style="display:grid;grid-template-columns:{{ pairCols }};gap:12px">
+                    <sc-for list="{{ pasFields }}" as="cf" hint-placeholder-count="2">
+                      <div style="position:relative;min-width:0;z-index:{{ cf.z }}">
+                        <button onClick="{{ cf.toggle }}" style="width:100%;height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #3f3f46;border-radius:12px;background:#1c1c1f;cursor:pointer;text-align:left;transition:border-color 150ms" style-hover="border-color:#71717a">
+                          <span style="flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3"><span style="font-size:12px;color:#a1a1aa">{{ cf.label }}</span><span style="font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cf.value }}</span></span>
+                          <i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i>
+                        </button>
+                        <sc-if value="{{ cf.isOpen }}" hint-placeholder-val="{{ false }}">
+                          <div style="position:absolute;top:66px;left:0;right:0;z-index:20;background:#1c1c1f;border:1px solid #3f3f46;border-radius:12px;padding:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+                            <sc-for list="{{ cf.opts }}" as="o" hint-placeholder-count="3">
+                              <button onClick="{{ o.pick }}" style="width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 12px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;text-align:left;font-size:15px" style-hover="background:#27272a">{{ o.n }}<i class="ti ti-check" style="font-size:16px;opacity:{{ o.checkOp }}"></i></button>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;background:#1c1c1f">
+                  <button onClick="{{ tgEnlazar.toggle }}" role="switch" aria-label="Enlazar con todos los horarios" style="width:52px;height:30px;flex:none;border-radius:999px;border:0;background:{{ tgEnlazar.bg }};position:relative;cursor:pointer;transition:background 150ms"><span style="position:absolute;top:3px;left:{{ tgEnlazar.l }};width:24px;height:24px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+                  <span style="font-size:15px">Enlazar con todos los horarios de este tipo de consumo</span>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- CANALES -->
+          <div style="background:#161618;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ secCanales.bg }};border:{{ secCanales.border }};color:#052e12;display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ti-check" style="opacity:{{ secCanales.checkOp }}"></i></span>
+                <span style="font-size:18px;font-weight:600">Canales</span>
+                <sc-if value="{{ secCanales.showTag }}" hint-placeholder-val="{{ true }}"><span style="font-size:16px;color:{{ secCanales.tagColor }}">{{ secCanales.tag }}</span></sc-if>
+              </div>
+              <span style="font-size:14px;color:#a1a1aa;margin-left:32px">Este horario se podrá visualizar desde estos canales, las reservas internas siempre estarán disponibles</span>
+            </div>
+            <div style="margin-left:{{ indent }};display:flex;flex-wrap:wrap;gap:12px">
+              <sc-for list="{{ chOpts }}" as="o" hint-placeholder-count="3">
+                <button onClick="{{ o.pick }}" title="{{ o.title }}" style="height:48px;padding:0 22px;border-radius:999px;border:1px solid {{ o.border }};background:{{ o.bg }};opacity:{{ o.op }};cursor:{{ o.cursor }};display:flex;align-items:center;gap:8px;font-size:16px;font-weight:500;white-space:nowrap;transition:background 150ms,border-color 150ms" style-hover="border-color:#71717a"><sc-if value="{{ o.on }}" hint-placeholder-val="{{ true }}"><i class="ti ti-check" style="font-size:18px;color:#ff8c1a"></i></sc-if>{{ o.n }}</button>
+              </sc-for>
+            </div>
+            <div style="padding:12px 16px;border-radius:10px;background:#1c1c1f;font-size:15px;color:#a1a1aa">{{ chSummary }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="flex:none;display:flex;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid #1f1f22;flex-wrap:wrap">
+      <div style="flex:1 1 240px;display:flex;align-items:center;gap:8px;font-size:14px;color:{{ pendColor }}"><i class="ti {{ pendIcon }}" style="font-size:18px"></i>{{ pendText }}</div>
+      <button onClick="{{ close }}" style="height:52px;padding:0 24px;border-radius:999px;border:1px solid #3f3f46;background:#18181b;cursor:pointer;font-size:16px;font-weight:500;transition:background 150ms" style-hover="background:#27272a">Cancelar</button>
+      <button onClick="{{ save }}" disabled="{{ saveDisabled }}" style="height:52px;padding:0 24px;border-radius:999px;border:0;background:{{ saveBg }};color:{{ saveColor }};cursor:{{ saveCursor }};font-size:16px;font-weight:600;transition:background 150ms" style-hover="filter:brightness(1.08)">Guardar y Publicar</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;onClose&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onSave&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(schedule: object) =&gt; void&quot;},&quot;onToast&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(msg: string) =&gt; void&quot;}}">
+const TIPOS=[{n:'Servicio a la Carta',hex:'#F2DC82'},{n:'Almuerzo Buffet Sazones Peruanos',hex:'#D67BF5'},{n:'Desayuno Buffet Día de Semana - S/69.00',hex:'#B5E05A'}];
+const PALETTE=['#3B82F6','#06B6D4','#00C853','#65D917','#FFD600','#FF8A00','#FF5252','#D50000','#AA00FF','#7C4DFF'];
+const TURNOS=[['Desayuno','D'],['Almuerzo','A'],['Cena','C']];
+const DOWS=[['Lun',1],['Mar',2],['Mie',3],['Jue',4],['Vie',5],['Sab',6],['Dom',0]];
+const DN=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const DNP=['domingos','lunes','martes','miércoles','jueves','viernes','sábados'];
+const MO=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const ZONAS=[{n:'2do piso',sub:'2do piso - Fin de Semana'},{n:'1er piso',sub:'1 er piso - Fin de Semana'},{n:'Terraza'},{n:'Almacén'}];
+const PRE=[0,15,30,60,120,360,720,1440,2880,4320,10080];
+const UNITS=[['Min',1],['Hrs',60],['Días',1440]];
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=(s||'').split('-').map(Number);return y?new Date(y,m-1,d):new Date();};
+const toH=t=>{const [h,m]=(t||'0:0').split(':').map(Number);return h+m/60;};
+const longDate=d=>d.getDate()+' de '+MO[d.getMonth()]+' de '+d.getFullYear();
+const joinEs=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' y '+a[a.length-1];
+const fmtD=m=>m<60?m+' minutos':m%1440===0?(m/1440)+(m===1440?' día':' días'):m%60===0?(m/60)+(m===60?' hr':' hrs'):m+' minutos';
+const fmtFull=m=>m<60?fmtD(m):fmtD(m)+' ('+m+' min)';
+const isHex=h=>/^#[0-9a-f]{6}$/i.test(h);
+const ON='#22c55e',OFF='#52525b';
+
+class Component extends DCLogic {
+  state={w:typeof window!=='undefined'?window.innerWidth:1400,open:null,svcMode:'list',svcQ:'',tipos:[...TIPOS],svc:null,color:null,
+    newName:'',newColor:PALETTE[0],newHex:PALETTE[0],turno:null,
+    date:iso(new Date()),from:'12:00',to:'15:30',rep:'none',days:[1,2,3,4,5],end:'never',until:new Date().getFullYear()+'-12-31',times:'10',cuandoT:false,
+    pax:'',limit:'',wait:false,waitN:'10',ant:false,antAcc:0,antMod:2880,durN:'1',durU:60,
+    zoneMode:'all',rot:false,rotMin:'10',zsel:{'2do piso':true,'1er piso':true},zsub:{},zrot:{},zmin:{'2do piso':'10','1er piso':'10','Terraza':'10','Almacén':'10'},
+    cobro:false,pago:'Cobro Parcial',monto:'',reservante:'Ambos',tipoCobro:'Por PAX',cantPax:'0',montoPax:'50',limCancel:'9:00 AM',
+    titulo:'POLÍTICAS DE CANCELACIÓN DE RESERVAS',texto:'La garantía consiste en una pre-aprobación de crédito y no ejecuta ningún pago al momento de realizarse la reserva. Luego de...',
+    pas1:'izipay-suscripcion-PE-D',pas2:'izipay-suscripcion-PE-D',enlazar:true,chW:true,chM:true,chT:false};
+  componentDidMount(){this._r=()=>this.setState({w:window.innerWidth});window.addEventListener('resize',this._r);
+    this._k=e=>{if(e.key==='Escape'){if(this.state.open)this.setState({open:null,svcMode:'list'});else this.props.onClose&&this.props.onClose();}};
+    window.addEventListener('keydown',this._k);}
+  componentWillUnmount(){window.removeEventListener('resize',this._r);window.removeEventListener('keydown',this._k);}
+  tog(key){this.setState({open:this.state.open===key?null:key,svcMode:'list'});}
+  renderVals(){
+    const s=this.state,narrow=s.w<760,two=s.w>=1100;
+    const st=parse(s.date),dow=st.getDay();
+    const toast=m=>this.props.onToast&&this.props.onToast(m);
+    const sec=(done,req)=>({bg:done?ON:'transparent',border:done?'0':'2px dashed #71717a',checkOp:done?1:0,tag:req?'Pendiente':'Opcional',tagColor:req?'#ef4444':'#71717a',showTag:!done});
+    const tg=(key,extra)=>({bg:s[key]?ON:OFF,l:s[key]?'25px':'3px',toggle:()=>this.setState({[key]:!s[key],...(extra||{})})});
+    const z=keys=>keys.includes(s.open)?10:'auto';
+    const opt=(key,list,extra)=>list.map(n=>({n,checkOp:s[key]===n?1:0,bg:s[key]===n?'#27272a':'transparent',pick:()=>this.setState({[key]:n,open:null,...(extra||{})})}));
+    const sel=(key,label,list)=>({isSelect:true,isInput:false,label,value:s[key],isOpen:s.open===key,z:s.open===key?10:'auto',toggle:()=>this.tog(key),opts:opt(key,list),hint:''});
+    const inp=(key,label,prefix,ph)=>({isSelect:false,isInput:true,label,value:s[key],prefix,ph,z:'auto',onChange:e=>this.setState({[key]:e.target.value}),hint:''});
+    const validTime=toH(s.to)>toH(s.from);
+    const needsDays=s.rep==='days'||s.rep==='custom';
+    const daysOk=!needsDays||s.days.length>0;
+    const repOpts=[['none','No se repite'],['days','Días de la semana'],['weekly','Cada semana el '+DN[dow]],['monthly','Todos los '+DNP[dow]+' del mes'],['yearly','Cada año el '+st.getDate()+' de '+MO[st.getMonth()]],['custom','Personalizado']];
+    const repLabel=repOpts.find(o=>o[0]===s.rep)[1];
+    const endTxt=s.end==='never'?' para siempre':s.end==='on'?', termina el '+longDate(parse(s.until)):', termina después de '+(s.times||0)+' veces';
+    const dayNames=DOWS.filter(d=>s.days.includes(d[1])).map(d=>d[0]);
+    const repSummary=s.rep==='none'?'Solo el '+longDate(st)+'.':needsDays?(dayNames.length?joinEs(dayNames)+endTxt:'Selecciona al menos un día.'):repLabel+endTxt;
+    const radio=k=>({border:s.end===k?'#ff8c1a':'#71717a',dot:s.end===k?'#ff8c1a':'transparent',text:s.end===k?'#fafafa':'#71717a'});
+    const q=s.svcQ.trim().toLowerCase();
+    const svcList=s.tipos.filter(t=>!q||t.n.toLowerCase().includes(q));
+    const effColor=s.color||(s.svc?s.svc.hex:'');
+    const missing=[!s.svc&&'Servicio',!s.turno&&'Turno',!validTime&&'Horario válido',!daysOk&&'Días de repetición'].filter(Boolean);
+    const canSave=missing.length===0;
+    const ch=['Internas',s.chM&&'mesa 247',s.chW&&'Widget'].filter(Boolean).join(' - ');
+    const chSummary=s.chW&&s.chM?'Para todas las reservas provenientes de Widget y la plataforma web de mesa24/7':s.chW?'Para todas las reservas provenientes de Widget':s.chM?'Para todas las reservas provenientes de la plataforma web de mesa24/7':'Solo para reservas internas';
+    const setT=k=>e=>this.setState({[k]:e.target.value,cuandoT:true});
+    const canCreate=s.newName.trim().length>0;
+    const zoneDone=s.zoneMode==='all'?s.rot:Object.values(s.zsel).some(Boolean);
+    const durField=(key,label)=>({label,value:fmtFull(s[key]),isOpen:s.open===key,z:s.open===key?10:'auto',toggle:()=>this.tog(key),
+      apply:()=>this.setState({[key]:Math.max(0,(parseInt(s.durN)||0)*s.durU),open:null}),
+      opts:PRE.map(m=>({n:fmtD(m),mins:m+' min',checkOp:s[key]===m?1:0,bg:s[key]===m?'#27272a':'transparent',pick:()=>this.setState({[key]:m,open:null})}))});
+    const cbx=on=>({b:on?'#ff8c1a':'#71717a',bg:on?'#ff8c1a':'transparent',op:on?1:0});
+    return {
+      outerPad:narrow?'0':'16px',modalRadius:narrow?'0':'20px',gridCols:two?'minmax(0,1fr) minmax(0,1fr)':'minmax(0,1fr)',
+      indent:narrow?'0':'32px',rowCols:narrow?'minmax(0,1fr)':'150px minmax(0,1fr)',labelPad:narrow?'0':'18px',pairCols:narrow?'minmax(0,1fr)':'minmax(0,1fr) minmax(0,1fr)',
+      anyMenu:!!s.open,closeMenus:()=>this.setState({open:null,svcMode:'list'}),
+      zSvc:z(['svc']),zRep:z(['rep']),zAnt:z(['antAcc','antMod']),zZone:z(['zoneMode']),zCobro:z(['pago','reservante','tipoCobro','limCancel','pas1','pas2']),
+      close:()=>this.props.onClose&&this.props.onClose(),
+      secSvc:sec(!!s.svc,true),secTurno:sec(!!s.turno,true),secCuando:sec(s.cuandoT&&validTime&&daysOk,false),secCfg:sec(!!(s.pax&&s.limit),false),
+      secWait:sec(s.wait,false),secAnt:sec(s.ant,false),secZonas:sec(zoneDone,false),secCobro:sec(s.cobro,false),secCanales:sec(s.chT,false),
+      hasSvc:!!s.svc,noSvc:!s.svc,effColor,svcName:s.svc?s.svc.n:'',
+      svcOpen:s.open==='svc',svcList:s.svcMode==='list',svcNew:s.svcMode==='new',toggleSvc:()=>this.tog('svc'),
+      svcQ:s.svcQ,onSvcQ:e=>this.setState({svcQ:e.target.value}),
+      svcOpts:svcList.map(t=>{const on=s.svc&&s.svc.n===t.n;return {n:t.n,hex:on?effColor:t.hex,checkOp:on?1:0,bg:on?'#27272a':'transparent',pick:()=>this.setState({svc:t,color:null,open:null,svcQ:''})};}),
+      svcEmpty:svcList.length===0,
+      colorSw:PALETTE.concat(s.svc&&!PALETTE.includes(s.svc.hex)?[s.svc.hex]:[]).map(hex=>({hex,ring:effColor===hex?'#fafafa':'transparent',pick:()=>this.setState({color:hex})})),
+      goNewSvc:()=>this.setState({svcMode:'new',newName:s.svcQ,newColor:PALETTE[0],newHex:PALETTE[0]}),backSvc:()=>this.setState({svcMode:'list'}),
+      newName:s.newName,onNewName:e=>this.setState({newName:e.target.value}),newColor:s.newColor,newHex:s.newHex,
+      onNewHex:e=>{let v=e.target.value;if(v&&v[0]!=='#')v='#'+v;this.setState(isHex(v)?{newHex:v,newColor:v}:{newHex:v});},
+      newSw:PALETTE.map(hex=>({hex,ring:s.newColor===hex?'#fafafa':'transparent',pick:()=>this.setState({newColor:hex,newHex:hex})})),
+      createBg:canCreate?'#ff8c1a':'#27272a',createFg:canCreate?'#1a0d00':'#71717a',createCursor:canCreate?'pointer':'not-allowed',
+      createSvc:()=>{if(!canCreate)return;const t={n:s.newName.trim(),hex:s.newColor};this.setState({tipos:[...s.tipos,t],svc:t,color:null,open:null,svcMode:'list',svcQ:''});toast('Tipo de consumo creado: '+t.n);},
+      turnoOpts:TURNOS.map(([n,k])=>{const on=s.turno===k;return {n,on,bg:on?'#4a2f12':'transparent',border:on?'#4a2f12':'#3f3f46',pick:()=>this.setState({turno:on?null:k})};}),
+      addTurno:()=>toast('Agregar turno: flujo pendiente'),
+      date:s.date,from:s.from,to:s.to,onDate:setT('date'),onFrom:setT('from'),onTo:setT('to'),
+      timeError:!validTime,timeBorder:validTime?'#3f3f46':'#ef4444',
+      repLabel,repOpen:s.open==='rep',toggleRep:()=>this.tog('rep'),
+      repOpts:repOpts.map(([k,n])=>({n,checkOp:s.rep===k?1:0,bg:s.rep===k?'#27272a':'transparent',pick:()=>this.setState({rep:k,open:null,cuandoT:true,
+        ...(k==='days'?{days:[1,2,3,4,5]}:k==='custom'?{days:[dow]}:{})})})),
+      showDays:needsDays,showEnd:s.rep!=='none',
+      dayChips:DOWS.map(([n,k])=>{const on=s.days.includes(k);return {n,bg:on?'#3a2410':'#27272a',color:on?'#ff8c1a':'#fafafa',
+        pick:()=>this.setState({days:on?s.days.filter(x=>x!==k):[...s.days,k],cuandoT:true})};}),
+      rNever:radio('never'),rOn:radio('on'),rAfter:radio('after'),
+      endNever:()=>this.setState({end:'never',cuandoT:true}),endOn:()=>this.setState({end:'on',cuandoT:true}),endAfter:()=>this.setState({end:'after',cuandoT:true}),
+      until:s.until,onUntil:e=>this.setState({until:e.target.value,end:'on'}),times:s.times,onTimes:e=>this.setState({times:e.target.value,end:'after'}),
+      repSummary,
+      pax:s.pax,limit:s.limit,onPax:e=>this.setState({pax:e.target.value}),onLimit:e=>this.setState({limit:e.target.value}),
+      tgWait:tg('wait'),waitOn:s.wait,waitN:s.waitN,onWaitN:e=>this.setState({waitN:e.target.value}),
+      tgAnt:tg('ant'),antOn:s.ant,
+      durFields:[durField('antAcc','Para aceptar reservas'),durField('antMod','Para modificar reservas')],
+      durN:s.durN,onDurN:e=>this.setState({durN:e.target.value}),
+      durUnits:UNITS.map(([n,u])=>({n,bg:s.durU===u?'#3f3f46':'transparent',pick:()=>this.setState({durU:u})})),
+      zoneModeLabel:s.zoneMode==='all'?'Todas las zonas':'Zonas Seleccionadas',zoneModeOpen:s.open==='zoneMode',toggleZoneMode:()=>this.tog('zoneMode'),
+      zoneModeOpts:[['all','Todas las zonas'],['sel','Zonas Seleccionadas']].map(([k,n])=>({n,checkOp:s.zoneMode===k?1:0,bg:s.zoneMode===k?'#27272a':'transparent',pick:()=>this.setState({zoneMode:k,open:null})})),
+      zoneAll:s.zoneMode==='all',zoneSel:s.zoneMode==='sel',tgRot:tg('rot'),rotOn:s.rot,rotMin:s.rotMin,onRotMin:e=>this.setState({rotMin:e.target.value}),
+      zoneWide:!narrow,zoneNarrow:narrow,zoneCols:narrow?'minmax(0,1fr)':'minmax(0,1.3fr) 150px minmax(0,1fr)',
+      zoneRows:ZONAS.map(zn=>{const on=!!s.zsel[zn.n],so=!!s.zsub[zn.n],ro=!!s.zrot[zn.n];const a=cbx(on),b=cbx(so);
+        return {n:zn.n,sub:zn.sub||'',hasSub:!!zn.sub,cbBorder:a.b,cbBg:a.bg,cbOp:a.op,sbBorder:b.b,sbBg:b.bg,sbOp:b.op,rowOp:on?1:0.45,
+          toggle:()=>this.setState({zsel:{...s.zsel,[zn.n]:!on}}),toggleSub:()=>this.setState({zsub:{...s.zsub,[zn.n]:!so}}),
+          rotBg:ro?ON:'#27272a',rotL:ro?'25px':'3px',toggleRot:()=>{if(on)this.setState({zrot:{...s.zrot,[zn.n]:!ro}});},
+          min:s.zmin[zn.n],minDisabled:!(on&&ro),onMin:e=>this.setState({zmin:{...s.zmin,[zn.n]:e.target.value}})};}),
+      tgCobro:tg('cobro'),cobroOn:s.cobro,
+      cobroFields:[sel('pago','Tipo de pago',['Cobro Parcial','Cobro Total','Garantía']),inp('monto','Monto fijo','S/','00.00'),
+        sel('reservante','Tipo de reservante',['Ambos','Clientes nuevos','Clientes frecuentes']),sel('tipoCobro','Tipo de cobro',['Por PAX','Por reserva']),
+        inp('cantPax','Cantidad de Pax','',''),inp('montoPax','Monto por Pax','S/',''),
+        {...sel('limCancel','Horas límite de cancelación',['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM']),hint:'Sin cobro antes de este límite'}],
+      titulo:s.titulo,onTitulo:e=>this.setState({titulo:e.target.value}),texto:s.texto,onTexto:e=>this.setState({texto:e.target.value}),
+      pasFields:[sel('pas1','Pasarela #1',['izipay-suscripcion-PE-D','niubiz-PE','mercadopago-PE']),sel('pas2','Pasarela #2',['izipay-suscripcion-PE-D','niubiz-PE','mercadopago-PE'])],
+      tgEnlazar:tg('enlazar'),
+      chOpts:[['Widget','chW'],['mesa 24/7','chM'],['Reservas internas',null]].map(([n,k])=>{const on=k?s[k]:true;
+        return {n,on,title:k?'':'Siempre disponible',bg:on?(k?'#3a2a14':'#221a10'):'transparent',border:on&&k?'#5a3d17':'#2e2a26',op:k?1:0.6,cursor:k?'pointer':'default',
+          pick:()=>{if(k)this.setState({[k]:!s[k],chT:true});}};}),
+      chSummary,
+      pendText:canSave?'Todo listo para publicar.':'Pendiente: '+missing.join(', '),pendColor:canSave?'#a1a1aa':'#f87171',pendIcon:canSave?'ti-circle-check':'ti-alert-circle',
+      saveDisabled:!canSave,saveBg:canSave?'#ff8c1a':'#27272a',saveColor:canSave?'#1a0d00':'#71717a',saveCursor:canSave?'pointer':'not-allowed',
+      save:()=>{if(!canSave)return;this.props.onSave&&this.props.onSave({n:s.svc.n,c:effColor,t:s.turno,s:toH(s.from),e:toH(s.to),ch,
+        rule:{type:s.rep==='custom'?'days':s.rep,start:s.date,days:[...s.days],end:s.end,until:s.until,times:parseInt(s.times)||1}});}
+    };
+  }
+}
+</script>
+</body>
+</html>

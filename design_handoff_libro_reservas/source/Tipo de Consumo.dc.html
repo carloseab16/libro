@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+html,body{margin:0;background:#0b0b0c;color:#fafafa;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input,textarea{font-family:inherit;color:inherit}
+a{color:#fafafa}a:hover{color:#ff8c1a}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=date]{position:relative;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23fafafa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z'/%3E%3Cpath d='M16 3v4'/%3E%3Cpath d='M8 3v4'/%3E%3Cpath d='M4 11h16'/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right center !important;background-size:20px 20px !important;background-origin:content-box !important}
+input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:auto;height:auto;margin:0;padding:0;opacity:0;cursor:pointer}
+label:has(input[type=date]){cursor:pointer}
+</style>
+</helmet>
+<div style="position:fixed;inset:0;z-index:110;background:#0B0B0C;display:flex;flex-direction:column;font-family:Manrope,system-ui,sans-serif;color:#fafafa">
+  <sc-if value="{{ anyMenu }}" hint-placeholder-val="{{ false }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:5"></div></sc-if>
+  <div style="flex:none;display:flex;align-items:center;gap:12px;padding:16px 16px 8px 24px">
+    <span style="min-width:0;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</span>
+    <div style="flex:1"></div>
+    <button onClick="{{ close }}" aria-label="Cerrar" style="width:40px;height:40px;flex:none;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#1f1f22"><i class="ti ti-x"></i></button>
+  </div>
+
+  <div ref="{{ bodyRef }}" onScroll="{{ onScroll }}" style="flex:1;min-height:0;overflow-y:auto;padding:8px 24px 16px">
+    <div style="display:flex;gap:16px;align-items:flex-start">
+      <sc-if value="{{ showNav }}" hint-placeholder-val="{{ false }}">
+        <div style="width:270px;flex:none;position:sticky;top:0;display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+            <button onClick="{{ n.go }}" style="display:flex;align-items:flex-start;gap:8px;padding:8px 16px;border:0;border-right:2px solid {{ n.edge }};background:{{ n.bg }};cursor:pointer;text-align:left;transition:background 150ms" style-hover="background:#18181b">
+              <i class="ti {{ n.icon }}" style="font-size:20px;margin-top:1px;flex:none"></i>
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:500">{{ n.n }}</span><span style="font-size:12px;color:{{ n.subColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.sub }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="flex:1;min-width:0;column-count:{{ cols }};column-gap:12px">
+        <!-- CONTENIDO -->
+        <div ref="{{ refC }}" style="background:#16181A;border-radius:14px;padding:16px 20px;margin-bottom:12px;break-inside:avoid;display:flex;flex-direction:column;gap:16px;position:relative;z-index:6">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <i class="ti ti-layout-list" style="font-size:20px;color:#d4d4d8;width:20px;text-align:center"></i>
+            <span style="font-size:16px;font-weight:600">Contenido</span><span style="font-size:14px;color:#f87171">Obligatorio</span>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:2px;padding:4px;border-radius:999px;background:#1E2021">
+              <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+                <button onClick="{{ l.pick }}" style="height:32px;padding:0 16px;border:0;border-radius:999px;background:{{ l.bg }};color:{{ l.color }};cursor:pointer;font-size:14px;font-weight:500;transition:background 150ms,color 150ms" style-hover="color:#fafafa">{{ l.n }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;padding-left:{{ indent }}">
+            <label style="flex:1 1 220px;height:48px;display:flex;align-items:center;padding:0 16px;border:1px solid {{ nameBorder }};border-radius:12px;background:#1E2021;transition:border-color 150ms" style-hover="border-color:#71717a">
+              <input value="{{ name }}" onChange="{{ onName }}" placeholder="{{ phName }}" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font-size:14px">
+            </label>
+            <div style="position:relative;flex:none">
+              <button onClick="{{ toggleColor }}" style="height:48px;padding:0 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;transition:border-color 150ms" style-hover="border-color:#71717a"><span style="width:24px;height:24px;border-radius:5px;background:{{ color }}"></span>Color<i class="ti ti-chevron-down" style="font-size:16px;color:#a1a1aa;margin-left:16px"></i></button>
+              <sc-if value="{{ colorOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:56px;right:0;width:300px;z-index:20;background:#1E2021;border:1px solid #38393A;border-radius:12px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5);padding:16px;display:flex;flex-direction:column;gap:8px">
+                  <span style="font-size:12px;color:#a1a1aa">Color</span>
+                  <div style="display:grid;grid-template-columns:repeat(5,40px);gap:8px">
+                    <sc-for list="{{ sw }}" as="c" hint-placeholder-count="10">
+                      <button onClick="{{ c.pick }}" aria-label="{{ c.hex }}" style="width:40px;height:40px;border-radius:8px;border:2px solid {{ c.ring }};background:{{ c.hex }};cursor:pointer;display:flex;align-items:center;justify-content:center;color:{{ c.fg }};font-size:16px"><i class="ti ti-check" style="opacity:{{ c.checkOp }}"></i></button>
+                    </sc-for>
+                  </div>
+                  <span style="font-size:12px;color:#a1a1aa">Color personalizado</span>
+                  <label style="height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #38393A;border-radius:10px;background:#141416">
+                    <span style="position:relative;width:24px;height:24px;flex:none;border-radius:6px;background:{{ color }};overflow:hidden;cursor:pointer"><input type="color" value="{{ pickerVal }}" onChange="{{ onPicker }}" aria-label="Selector de color" style="position:absolute;inset:-8px;width:40px;height:40px;opacity:0;cursor:pointer;border:0;padding:0"></span>
+                    <input value="{{ hex }}" onChange="{{ onHex }}" maxlength="7" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font-size:14px;text-transform:uppercase">
+                  </label>
+                  <button onClick="{{ closeMenus }}" style="align-self:flex-end;height:40px;padding:0 16px;border:1px solid #38393A;border-radius:999px;background:#1E2021;color:#fafafa;cursor:pointer;font-size:12px;font-weight:600" style-hover="background:#2a2c2d">Listo</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:-8px;padding-left:calc({{ indent }} + 16px)">
+            <span style="font-size:12px;color:#a1a1aa">Preview en el listado de reservas</span>
+            <span style="max-width:100%;height:24px;padding:0 8px;border-radius:999px;border:1px solid {{ color }};color:{{ chipFg }};font-size:14px;font-weight:500;display:flex;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ prevName }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding-left:{{ indent }}">
+            <span style="font-size:14px">Descripción</span>
+            <textarea rows="3" value="{{ desc }}" onChange="{{ onDesc }}" placeholder="{{ phDesc }}" style="width:100%;padding:12px 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021;outline:none;color:#fafafa;font-size:14px;line-height:1.5;resize:vertical"></textarea>
+            <span style="font-size:14px;margin-top:4px">Detalle</span>
+            <textarea rows="3" value="{{ det }}" onChange="{{ onDet }}" placeholder="{{ phDet }}" style="width:100%;padding:12px 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021;outline:none;color:#fafafa;font-size:14px;line-height:1.5;resize:vertical"></textarea>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+              <button onClick="{{ tgRes.toggle }}" role="switch" aria-label="Mostrar resumen" style="width:44px;height:24px;flex:none;border-radius:999px;border:0;background:{{ tgRes.bg }};position:relative;cursor:pointer;transition:background 150ms"><span style="position:absolute;top:3px;left:{{ tgRes.l }};width:20px;height:20px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+              <span style="font-size:14px">Mostrar resumen</span>
+            </div>
+            <sc-if value="{{ showRes }}" hint-placeholder-val="{{ false }}">
+              <textarea rows="2" value="{{ res }}" onChange="{{ onRes }}" placeholder="{{ phRes }}" style="width:100%;padding:12px 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021;outline:none;color:#fafafa;font-size:14px;line-height:1.5;resize:vertical"></textarea>
+            </sc-if>
+          </div>
+        </div>
+
+        <!-- IMAGENES -->
+        <div ref="{{ refI }}" style="background:#16181A;border-radius:14px;padding:16px 20px;margin-bottom:12px;break-inside:avoid;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:8px"><i class="ti ti-photo" style="font-size:20px;color:#d4d4d8;width:20px;text-align:center"></i><span style="font-size:16px;font-weight:600">Imágenes</span></div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding-left:{{ indent }}">
+            <sc-for list="{{ uploads }}" as="u" hint-placeholder-count="2">
+              <label style="flex:1 1 180px;min-height:180px;border:1px dashed #52525b;border-radius:12px;background:#1a1a1c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;cursor:pointer;position:relative;overflow:hidden;text-align:center;transition:border-color 150ms,background 150ms" style-hover="border-color:#a1a1aa;background:#1f1f22">
+                <input type="file" accept="image/png,image/jpeg" onChange="{{ u.onFile }}" style="display:none">
+                <sc-if value="{{ u.has }}" hint-placeholder-val="{{ false }}"><img src="{{ u.src }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.35"></sc-if>
+                <span style="position:relative;width:48px;height:48px;border-radius:12px;border:1px solid #38393A;background:#1E2021;display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ti {{ u.icon }}"></i></span>
+                <span style="position:relative;font-size:16px">{{ u.n }}</span>
+                <span style="position:relative;font-size:12px;color:#a1a1aa">{{ u.hint }}</span>
+              </label>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- REGLAS -->
+        <div ref="{{ refR }}" style="background:#16181A;border-radius:14px;padding:16px 20px;margin-bottom:12px;break-inside:avoid;break-before:{{ breakR }};display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="display:flex;align-items:center;gap:8px"><i class="ti ti-book" style="font-size:20px;color:#d4d4d8;width:20px;text-align:center"></i><span style="font-size:16px;font-weight:600">Reglas de reserva</span></div>
+            <span style="font-size:12px;color:#a1a1aa;padding-left:32px">Configura el orden y la capacidad</span>
+          </div>
+          <div style="display:grid;grid-template-columns:{{ ruleCols }};gap:12px;padding-left:{{ indent }}">
+            <sc-for list="{{ rules }}" as="r" hint-placeholder-count="5">
+              <label style="height:48px;display:flex;align-items:center;gap:8px;padding:0 16px 0 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021;min-width:0;transition:border-color 150ms" style-hover="border-color:#71717a">
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">
+                  <span style="font-size:12px;color:#a1a1aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.label }}</span>
+                  <input type="number" inputmode="numeric" min="0" value="{{ r.v }}" onChange="{{ r.on }}" placeholder="{{ r.ph }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:14px;padding:0;width:100%">
+                </span>
+                <i class="ti {{ r.icon }}" style="font-size:20px;color:#d4d4d8;flex:none"></i>
+              </label>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- FECHAS -->
+        <div ref="{{ refF }}" style="background:#16181A;border-radius:14px;padding:16px 20px;margin-bottom:12px;break-inside:avoid;display:flex;flex-direction:column;gap:16px;position:relative;z-index:{{ zF }}">
+          <div style="display:flex;align-items:center;gap:8px"><i class="ti ti-calendar" style="font-size:20px;color:#d4d4d8;width:20px;text-align:center"></i><span style="font-size:16px;font-weight:600">Fechas</span></div>
+          <div style="display:flex;flex-direction:column;gap:12px;padding-left:{{ indent }}">
+            <div style="position:relative">
+              <button onClick="{{ toggleF }}" style="width:100%;height:48px;padding:0 16px;border:1px solid {{ fBorder }};border-radius:12px;background:#1E2021;cursor:pointer;display:flex;align-items:center;font-size:14px;text-align:left;transition:border-color 150ms" style-hover="border-color:#71717a"><span style="flex:1">{{ fLabel }}</span><i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i></button>
+              <sc-if value="{{ fOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:56px;left:0;right:0;z-index:20;background:#1E2021;border:1px solid #38393A;border-radius:12px;padding:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+                  <sc-for list="{{ fOpts }}" as="o" hint-placeholder-count="4">
+                    <button onClick="{{ o.pick }}" style="width:100%;height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border:0;border-radius:8px;background:{{ o.bg }};cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a"><span style="flex:1">{{ o.n }}</span><i class="ti ti-check" style="font-size:16px;opacity:{{ o.op }}"></i></button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ showDates }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:{{ pairCols }};gap:12px">
+                <sc-if value="{{ showIni }}" hint-placeholder-val="{{ false }}">
+                  <label style="height:48px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021"><span style="font-size:12px;color:#a1a1aa">Desde</span><input type="date" value="{{ fIni }}" onChange="{{ onFIni }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:14px;padding:0;color-scheme:dark;width:100%"></label>
+                </sc-if>
+                <sc-if value="{{ showFin }}" hint-placeholder-val="{{ false }}">
+                  <label style="height:48px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;border:1px solid #38393A;border-radius:12px;background:#1E2021"><span style="font-size:12px;color:#a1a1aa">Hasta</span><input type="date" value="{{ fFin }}" onChange="{{ onFFin }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:14px;padding:0;color-scheme:dark;width:100%"></label>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <sc-if value="{{ inlinePrev }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#16181A;border-radius:14px;padding:16px 20px;margin-bottom:12px;break-inside:avoid;display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:16px;font-weight:600">Vista previa</span>
+            <div style="margin-top:8px;border-radius:12px;overflow:hidden;background:#3f3f46;position:relative">
+              <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ imgD }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.45"></sc-if>
+              <div style="position:relative;padding:12px 16px;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:500">{{ prevName }}</span><span style="font-size:12px;color:#e4e4e7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ prevDesc }}</span></div>
+            </div>
+            <span style="font-size:12px;color:#a1a1aa">Así se verá el bloque en el motor de reservas</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ asidePrev }}" hint-placeholder-val="{{ false }}">
+        <div style="width:272px;flex:none;position:sticky;top:0;background:#16181A;border-radius:14px;padding:16px 16px;display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:16px;font-weight:600">Vista previa</span>
+          <div style="margin-top:8px;border-radius:12px;overflow:hidden;background:#3f3f46;position:relative">
+            <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ imgD }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.45"></sc-if>
+            <div style="position:relative;padding:12px 16px;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:500">{{ prevName }}</span><span style="font-size:12px;color:#e4e4e7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ prevDesc }}</span></div>
+          </div>
+          <span style="font-size:12px;color:#a1a1aa">Así se verá el bloque en el motor de reservas</span>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="flex:none;display:flex;align-items:center;gap:12px;padding:8px 24px 16px 24px">
+    <button onClick="{{ help }}" style="height:40px;padding:0 12px;border:0;border-radius:999px;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px" style-hover="background:#1f1f22"><i class="ti ti-help-circle" style="font-size:20px"></i>Ayuda</button>
+    <div style="flex:1"></div>
+    <button onClick="{{ close }}" style="height:40px;padding:0 20px;border-radius:999px;border:1px solid #38393A;background:#1E2021;cursor:pointer;font-size:14px;font-weight:500" style-hover="background:#2a2c2d">Cancelar</button>
+    <button onClick="{{ save }}" style="height:40px;padding:0 20px;border-radius:999px;border:0;background:{{ saveBg }};color:{{ saveFg }};cursor:{{ saveCursor }};font-size:14px;font-weight:600;white-space:nowrap" style-hover="filter:brightness(1.08)">{{ saveLabel }}</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;vista&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;box&quot;,&quot;viz&quot;,&quot;onb&quot;],&quot;default&quot;:&quot;box&quot;,&quot;tsType&quot;:&quot;'box'|'viz'|'onb'&quot;},&quot;tipo&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;onSave&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(t: object) =&gt; void&quot;},&quot;onClose&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onToast&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(m: string) =&gt; void&quot;}}">
+const PALETTE=['#3B82F6','#06B6D4','#00C853','#65D917','#FFD600','#FF8A00','#FF5252','#D50000','#AA00FF','#7C4DFF'];
+const VISTAS={onb:['Steps','ti-list-details'],viz:['Bento visualización','ti-layout-sidebar-right'],box:['Bento box','ti-layout-grid']};
+const ON='#22c55e',OFF='#52525b';
+const isHex=h=>/^#[0-9a-f]{6}$/i.test(h);
+const lum=h=>{if(!isHex(h))return 0;const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return 0.299*r+0.587*g+0.114*b;};
+const MO=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const fd=s=>{if(!s)return '—';const [y,m,d]=s.split('-').map(Number);return d+' '+MO[m-1]+' '+y;};
+const FOPTS=[['siempre','Siempre'],['desde','Desde una fecha'],['hasta','Hasta una fecha'],['rango','Rango de fechas']];
+class Component extends DCLogic {
+  _sec={};
+  constructor(p){super(p);const t=p.tipo||{};const d=t.data||{};const c=t.c&&isHex(t.c)?t.c.toUpperCase():'#FF8A00';
+    this.state={w:typeof window!=='undefined'?window.innerWidth:1400,open:null,navSel:'c',lang:'es',name:t.n||'',color:c,hex:c,
+      desc:d.desc||{es:'',en:''},det:d.det||{es:'',en:''},res:d.res||{es:'',en:''},showRes:!!d.showRes,
+      principal:d.principal||'3',orden:d.orden||'1',maxDia:d.maxDia||'',minPax:d.minPax||'1',maxPax:d.maxPax||'1000',
+      fechas:d.fechas||'siempre',fIni:d.fIni||'',fFin:d.fFin||'',imgD:d.imgD||'',imgM:d.imgM||'',touched:false};}
+  componentDidMount(){if(!window.__dpBound){window.__dpBound=1;document.addEventListener('click',e=>{const l=e.target&&e.target.closest&&e.target.closest('label,input[type=date]');if(e.target.matches&&e.target.matches('input[type=date]')&&e.isTrusted===false)return;if(!l)return;const i=l.matches('input[type=date]')?l:l.querySelector('input[type=date]');if(i&&!i.disabled&&i.showPicker){try{i.showPicker();}catch(_){}}});}this._r=()=>this.setState({w:window.innerWidth});window.addEventListener('resize',this._r);
+    this._k=e=>{if(e.key==='Escape'){if(this.state.open)this.setState({open:null});else this.close();}};window.addEventListener('keydown',this._k);}
+  componentWillUnmount(){window.removeEventListener('resize',this._r);window.removeEventListener('keydown',this._k);}
+  close(){if(this.props.onClose)this.props.onClose();}
+  goSec(k){this.setState({navSel:k});const b=this._body,el=this._sec[k];if(b&&el)b.scrollTo({top:b.scrollTop+el.getBoundingClientRect().top-b.getBoundingClientRect().top-12,behavior:'smooth'});}
+  onScroll(){if(!this._body)return;const lim=this._body.getBoundingClientRect().top+80;let cur=null;['c','i','r','f'].forEach(k=>{const el=this._sec[k];if(el&&el.getBoundingClientRect().top<=lim)cur=k;});if(cur&&cur!==this.state.navSel)this.setState({navSel:cur});}
+  renderVals(){
+    const s=this.state,V='box',two=s.w>=1100,narrow=s.w<760;
+    const toast=m=>this.props.onToast&&this.props.onToast(m);const LG=s.lang;const ok=s.name.trim().length>0;
+    const fld=k=>e=>this.setState({[k]:{...this.state[k],[LG]:e.target.value}});
+    const readImg=k=>e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>250*1024){toast('La imagen supera los 250kb');return;}const r=new FileReader();r.onload=()=>this.setState({[k]:r.result});r.readAsDataURL(f);};
+    const isEdit=!!(this.props.tipo&&this.props.tipo.n);
+    const fLabel=FOPTS.find(o=>o[0]===s.fechas)[1];
+    const fSum=s.fechas==='siempre'?'Siempre':s.fechas==='desde'?'Desde '+fd(s.fIni):s.fechas==='hasta'?'Hasta '+fd(s.fFin):fd(s.fIni)+' – '+fd(s.fFin);
+    const custom=s.principal!=='3'||s.orden!=='1'||s.maxDia!==''||s.minPax!=='1'||s.maxPax!=='1000';
+    const nImg=(s.imgD?1:0)+(s.imgM?1:0);
+    const NAV=[['c','Contenido','ti-layout-list',ok?s.name.trim():'Obligatorio',!ok],['i','Imágenes','ti-photo',nImg?nImg+(nImg===1?' imagen':' imágenes'):'Opcional',false],
+      ['r','Reglas de reserva','ti-book',custom?'Personalizado':'Default',false],['f','Fechas','ti-calendar',fSum,false]];
+    const rule=(k,label,icon,ph)=>({label,icon,v:s[k],ph:ph||'',on:e=>this.setState({[k]:e.target.value})});
+    const desc=s.desc[LG]||'';
+    return {
+      title:(isEdit?'Editar':'Crear')+' servicio (tipo de consumo)',vistaName:VISTAS[V][0],vistaIcon:VISTAS[V][1],close:()=>this.close(),
+      anyMenu:!!s.open,closeMenus:()=>this.setState({open:null}),
+      bodyRef:el=>{if(el)this._body=el;},onScroll:()=>this.onScroll(),
+      refC:el=>{if(el)this._sec.c=el;},refI:el=>{if(el)this._sec.i=el;},refR:el=>{if(el)this._sec.r=el;},refF:el=>{if(el)this._sec.f=el;},
+      showNav:V==='onb'&&two,asidePrev:V!=='box'&&s.w>=1000,inlinePrev:V==='box'||s.w<1000,
+      cols:V==='box'&&s.w>=1000?2:1,breakR:V==='box'&&s.w>=1000?'column':'auto',indent:narrow?'0':'30px',
+      ruleCols:narrow?'minmax(0,1fr)':'repeat(3,minmax(0,1fr))',pairCols:narrow?'minmax(0,1fr)':'minmax(0,1fr) minmax(0,1fr)',
+      navItems:NAV.map(([k,n,icon,sub,err])=>({n,icon,sub,subColor:err?'#f87171':'#a1a1aa',edge:s.navSel===k?'#fafafa':'transparent',bg:s.navSel===k?'#18181b':'transparent',go:()=>this.goSec(k)})),
+      langs:[['es','Español'],['en','Inglés']].map(([k,n])=>({n,bg:LG===k?'#3f3f46':'transparent',color:LG===k?'#fafafa':'#a1a1aa',pick:()=>this.setState({lang:k})})),
+      color:s.color,hex:s.hex,pickerVal:s.color.toLowerCase(),colorOpen:s.open==='color',toggleColor:()=>this.setState({open:s.open==='color'?null:'color'}),
+      sw:PALETTE.map(hex=>({hex,ring:s.color===hex?'#fafafa':'transparent',checkOp:s.color===hex?1:0,fg:lum(hex)>140?'#18181b':'#ffffff',pick:()=>this.setState({color:hex,hex})})),
+      onHex:e=>{let v=e.target.value;if(v&&v[0]!=='#')v='#'+v;this.setState(isHex(v)?{hex:v,color:v.toUpperCase()}:{hex:v});},onPicker:e=>{const v=e.target.value.toUpperCase();this.setState({color:v,hex:v});},
+      name:s.name,onName:e=>this.setState({name:e.target.value}),phName:LG==='es'?'Nombre del servicio *':'Service name *',nameBorder:s.touched&&!ok?'#ef4444':'#46464c',
+      desc,det:s.det[LG]||'',res:s.res[LG]||'',onDesc:fld('desc'),onDet:fld('det'),onRes:fld('res'),
+      phDesc:LG==='es'?'Escribe una descripción':'Write a description',phDet:LG==='es'?'Escribe los detalles del servicio':'Write the service details',phRes:LG==='es'?'Escribe un resumen':'Write a summary',
+      tgRes:{bg:s.showRes?ON:OFF,l:s.showRes?'21px':'3px',toggle:()=>this.setState({showRes:!s.showRes})},showRes:s.showRes,
+      uploads:[['imgD','Foto desktop'],['imgM','Foto mobile']].map(([k,n])=>({n,icon:s[k]?'ti-check':'ti-photo',has:!!s[k],src:s[k]||'',hint:s[k]?'Clic para reemplazar':'Jpg o png. Tamaño máximo: 250kb',onFile:readImg(k)})),
+      rules:[rule('principal','Principal','ti-star'),rule('orden','Orden de visualización','ti-list-numbers'),rule('maxDia','Máx reservas por día','ti-book','Sin límite'),rule('minPax','Min pax por reserva','ti-user'),rule('maxPax','Max pax por reserva','ti-user')],
+      zF:s.open==='f'?10:'auto',fOpen:s.open==='f',fBorder:s.open==='f'?'#ff8c1a':'#46464c',toggleF:()=>this.setState({open:s.open==='f'?null:'f'}),fLabel,
+      fOpts:FOPTS.map(([k,n])=>({n,op:s.fechas===k?1:0,bg:s.fechas===k?'#27272a':'transparent',pick:()=>this.setState({fechas:k,open:null})})),
+      showDates:s.fechas!=='siempre',showIni:s.fechas==='desde'||s.fechas==='rango',showFin:s.fechas==='hasta'||s.fechas==='rango',
+      fIni:s.fIni,fFin:s.fFin,onFIni:e=>this.setState({fIni:e.target.value}),onFFin:e=>this.setState({fFin:e.target.value}),
+      prevName:s.name.trim()||(LG==='es'?'Nombre del servicio':'Service name'),prevDesc:(s.showRes&&s.res[LG])||desc||(LG==='es'?'Descripción':'Description'),
+      chipFg:lum(s.color)>90?s.color:'#fafafa',hasImg:!!s.imgD,imgD:s.imgD,
+      help:()=>toast('Centro de ayuda: pantalla pendiente'),
+      saveLabel:isEdit?'Guardar cambios':'Guardar y Publicar',saveBg:ok?'#ff8c1a':'#27272a',saveFg:ok?'#1a0d00':'#71717a',saveCursor:ok?'pointer':'not-allowed',
+      save:()=>{if(!ok){this.setState({touched:true});this.goSec('c');return;}
+        const data={desc:s.desc,det:s.det,res:s.res,showRes:s.showRes,principal:s.principal,orden:s.orden,maxDia:s.maxDia,minPax:s.minPax,maxPax:s.maxPax,fechas:s.fechas,fIni:s.fIni,fFin:s.fFin,imgD:s.imgD,imgM:s.imgM};
+        const t={n:s.name.trim(),c:s.color,hex:s.color,vista:V,dur:fSum,data};
+        if(this.props.onSave)this.props.onSave(t);}
+    };
+  }
+}
+</script>
+</body>
+</html>

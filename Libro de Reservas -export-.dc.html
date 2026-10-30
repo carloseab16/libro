@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ext-resource-dependency" content="./Operacion y Horarios.dc.html" data-resource-id="./Operacion y Horarios.dc.html">
+<meta name="ext-resource-dependency" content="./Crear Horario.dc.html" data-resource-id="./Crear Horario.dc.html">
+<meta name="ext-resource-dependency" content="./Tipo de Consumo.dc.html" data-resource-id="./Tipo de Consumo.dc.html">
+<meta name="ext-resource-dependency" content="./Mesas y Combinaciones.dc.html" data-resource-id="./Mesas y Combinaciones.dc.html">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" data-bg-color="#0b0b0c"><rect width="100" height="100" fill="#0b0b0c"></rect><rect x="30" y="30" width="40" height="40" rx="8" fill="#ff8c1a"></rect><rect x="38" y="40" width="24" height="4" rx="2" fill="#0b0b0c"></rect><rect x="38" y="48" width="18" height="4" rx="2" fill="#0b0b0c"></rect><rect x="38" y="56" width="22" height="4" rx="2" fill="#0b0b0c"></rect></svg></template>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+html,body{margin:0;background:#0b0b0c;color:#fafafa;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button{font-family:inherit;color:inherit}
+a{color:#fafafa}a:hover{color:#ff8c1a}
+html{scrollbar-color:#27272a transparent}::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#27272a;border-radius:8px}::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}::-webkit-scrollbar-button{display:none}
+</style>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;overflow:hidden;background:#0b0b0c">
+
+  <!-- TOP BAR -->
+  <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;min-height:56px;flex-wrap:wrap;position:relative;z-index:20">
+    <div style="display:flex;align-items:center;gap:8px;position:relative">
+      <button onClick="{{ openDrawer }}" aria-label="Menú" style="width:40px;height:40px;border:0;background:transparent;border-radius:999px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background 150ms" style-hover="background:#1f1f22"><i class="ti ti-menu-2"></i></button>
+      <button onClick="{{ toggleLocal }}" style="display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:4px 8px;border-radius:12px;cursor:pointer;transition:background 150ms" style-hover="background:#1f1f22">
+        <span style="width:32px;height:32px;flex:none;border-radius:50%;background:#27272a;border:1px solid #3f3f46;color:#fafafa;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-building-store"></i></span>
+        <span style="display:flex;flex-direction:column;align-items:flex-start">
+          <span style="font-size:12px;line-height:16px;font-weight:300;color:#a1a1aa">Local</span>
+          <span style="font-size:14px;line-height:20px;font-weight:700;white-space:nowrap">{{ localName }}</span>
+        </span>
+        <i class="ti ti-chevron-down" style="font-size:20px;color:#a1a1aa"></i>
+      </button>
+      <sc-if value="{{ localOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:52px;left:50px;width:240px;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4)">
+          <sc-for list="{{ locals }}" as="l" hint-placeholder-count="2">
+            <button onClick="{{ l.pick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a">{{ l.name }}<i class="ti ti-check" style="font-size:16px;opacity:{{ l.checkOp }}"></i></button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex:1 1 auto;justify-content:center;flex-wrap:wrap;order:{{ centerOrder }};flex-basis:{{ centerBasis }}">
+      <sc-if value="{{ notToday }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goToday }}" style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;font-size:14px;font-weight:500;transition:background 150ms" style-hover="background:#27272a">Hoy</button></sc-if>
+      <button onClick="{{ prevDay }}" aria-label="Día anterior" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-chevron-left"></i></button>
+      <div style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #52525b;background:#27272a;display:flex;align-items:center;font-size:14px;font-weight:500;white-space:nowrap">{{ dateLabel }}</div>
+      <button onClick="{{ nextDay }}" aria-label="Día siguiente" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-chevron-right"></i></button>
+      <div style="position:relative">
+        <button onClick="{{ toggleTurnos }}" style="height:40px;padding:0 12px;border-radius:999px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap;transition:background 150ms" style-hover="background:#1f1f22">{{ turno }}<i class="ti ti-chevron-down" style="font-size:16px;color:#a1a1aa"></i></button>
+        <sc-if value="{{ turnosOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:46px;left:0;width:200px;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4)">
+            <sc-for list="{{ turnos }}" as="t" hint-placeholder-count="3">
+              <button onClick="{{ t.pick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a">{{ t.name }}<i class="ti ti-check" style="font-size:16px;opacity:{{ t.checkOp }}"></i></button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+      <button onClick="{{ toggleCupos }}" style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #27272a;background:{{ cuposBg }};cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;transition:background 150ms" style-hover="background:#27272a"><i class="ti {{ cuposIcon }}" style="font-size:16px"></i><sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="white-space:nowrap">{{ cuposLabel }}</span></sc-if></button>
+      <button onClick="{{ walkIn }}" style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-walk" style="font-size:16px"></i><sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>Walk-in</span></sc-if></button>
+      <button onClick="{{ newRes }}" style="height:40px;padding:0 16px;border-radius:999px;border:0;background:#ff8c1a;color:#1a0d00;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;transition:background 150ms" style-hover="background:#ffa040" style-active="background:#e67a0d"><i class="ti ti-plus" style="font-size:16px"></i><sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="white-space:nowrap">Nueva reserva</span></sc-if></button>
+      <button onClick="{{ openChat }}" aria-label="Mensajes" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-message-2"></i></button>
+    </div>
+  </div>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:4px;margin:0 16px 8px;padding:4px;background:#141416;border:1px solid #27272a;border-radius:10px">
+      <sc-for list="{{ mTabs }}" as="m" hint-placeholder-count="4">
+        <button onClick="{{ m.pick }}" style="flex:1;height:40px;border:0;border-radius:7px;background:{{ m.bg }};cursor:pointer;font-size:12px;font-weight:500">{{ m.name }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- MAIN -->
+  <div style="flex:1;min-height:0;display:flex;gap:{{ mainGap }}">
+    <sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}">
+      <div style="width:64px;flex:none;display:flex;flex-direction:column;padding-top:16px;gap:8px">
+        <sc-for list="{{ rail }}" as="r" hint-placeholder-count="4">
+          <button onClick="{{ r.pick }}" aria-label="{{ r.label }}" title="{{ r.label }}" style="height:64px;border:0;border-right:2px solid {{ r.edge }};background:{{ r.bg }};color:{{ r.color }};opacity:{{ r.op }};cursor:{{ r.cursor }};font-size:20px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ r.icon }}"></i></button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- ========== VISTA PLANO ========== -->
+    <sc-if value="{{ showListPanel }}" hint-placeholder-val="{{ true }}">
+      <div style="width:{{ listWidth }};flex:none;display:flex;flex-direction:column;background:#141416;border-radius:16px 16px 0 0;overflow:hidden;min-height:0">
+        <div style="display:flex;gap:8px;padding:16px">
+          <label style="flex:1;height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border:1px solid #27272a;border-radius:12px;background:#0f0f11;color:#71717a;transition:border-color 150ms" style-hover="border-color:#3f3f46">
+            <i class="ti ti-search" style="font-size:16px"></i>
+            <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font:inherit;font-size:12px;line-height:16px">
+          </label>
+          <button onClick="{{ toggleFilter }}" aria-label="Filtros" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:{{ filterBg }};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-filter-2"></i></button>
+        </div>
+        <sc-if value="{{ filterOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;padding:0 16px 12px;flex-wrap:wrap">
+            <sc-for list="{{ statusFilters }}" as="f" hint-placeholder-count="3">
+              <button onClick="{{ f.pick }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }};cursor:pointer;font-size:12px;white-space:nowrap;transition:background 150ms" style-hover="background:#27272a;color:#fafafa">{{ f.name }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div ref="{{ listRef }}" style="flex:1;overflow-y:auto;overflow-x:hidden;min-height:0">
+          <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="3">
+            <div data-sec="{{ sec.key }}">
+              <button onClick="{{ sec.toggle }}" style="width:100%;height:32px;display:flex;align-items:center;gap:16px;padding:0 16px;border:0;border-top:1px solid #27272a;background:#0f0f11;cursor:pointer;text-align:left;transition:background 150ms" style-hover="background:#18181b">
+                <span style="flex:1;font-size:14px;line-height:20px;font-weight:700">{{ sec.name }}</span>
+                <span style="display:flex;align-items:center;gap:4px;font-size:14px;line-height:20px;font-weight:700"><i class="ti ti-book" style="font-size:16px"></i>{{ sec.count }}</span>
+                <span style="display:flex;align-items:center;gap:4px;font-size:14px;line-height:20px;font-weight:700;min-width:40px"><i class="ti ti-user" style="font-size:16px"></i>{{ sec.pax }}</span>
+                <i class="ti {{ sec.chev }}" style="font-size:20px"></i>
+              </button>
+              <sc-if value="{{ sec.open }}" hint-placeholder-val="{{ true }}">
+                <sc-for list="{{ sec.groups }}" as="g" hint-placeholder-count="2">
+                  <div>
+                    <div style="height:32px;display:flex;align-items:center;gap:16px;padding:0 48px 0 16px;background:#1c1c1f;font-size:14px;line-height:20px;font-weight:700">
+                      <span style="flex:1;display:flex;align-items:center;gap:4px"><i class="ti ti-clock" style="font-size:16px"></i>{{ g.time }}<span title="{{ g.turnoName }}" style="width:16px;height:16px;flex:none;border-radius:4px;background:#09090b;color:#fafafa;border:1px solid #3f3f46;font-size:10px;line-height:12px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-left:4px">{{ g.turno }}</span></span>
+                      <span style="display:flex;align-items:center;gap:4px"><i class="ti ti-book" style="font-size:16px"></i>{{ g.count }}</span>
+                      <span style="display:flex;align-items:center;gap:4px"><i class="ti ti-user" style="font-size:16px"></i>{{ g.paxLabel }}</span>
+                    </div>
+                    <sc-for list="{{ g.items }}" as="c" hint-placeholder-count="2">
+                    <div onClick="{{ c.pick }}" style="display:flex;align-items:center;gap:16px;padding:16px;border-bottom:1px solid #27272a;background:{{ c.bg }};box-shadow:inset 3px 0 0 {{ c.edge }};cursor:pointer;transition:background 150ms" style-hover="background:#1c1c1f">
+                      <button onClick="{{ c.openStatus }}" title="Cambiar estado: {{ c.stName }}" style="width:40px;height:40px;flex:none;border:2px solid {{ c.stColor }};border-radius:8px;background:{{ c.stBg }};color:{{ c.stIc }};display:flex;align-items:center;justify-content:center;align-self:center;cursor:pointer;font-size:20px;transition:filter 150ms" style-hover="filter:brightness(1.2)"><i class="ti {{ c.stIcon }}"></i></button>
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+                        <div style="font-size:16px;line-height:24px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div>
+                        <div style="font-size:14px;line-height:20px;color:#a1a1aa;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden"><span style="flex:none">{{ c.floor }}</span><span style="flex:none;width:3px;height:3px;border-radius:50%;background:#52525b"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis">{{ c.stName }}</span></div>
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+                          <span style="font-size:14px;line-height:20px;font-weight:600;color:#ff8c1a;border:1px solid #7a4a17;border-radius:999px;padding:0 8px;white-space:nowrap">{{ c.type }}</span>
+                          <sc-if value="{{ c.label }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;line-height:20px;font-weight:600;color:#fff;background:#1f7ae0;border-radius:999px;padding:0 8px;white-space:nowrap">{{ c.label }}</span></sc-if>
+                        </div>
+                      </div>
+                      <div style="align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;gap:8px">
+                        <span title="{{ c.paxTitle }}" style="font-size:16px;line-height:24px;font-weight:500;background:{{ c.paxBg }};color:{{ c.paxFg }};border-radius:4px;padding:0 4px">{{ c.pax }}</span>
+                        <div style="display:flex;gap:4px;color:#a1a1aa;font-size:16px">
+                          <sc-for list="{{ c.flags }}" as="fl" hint-placeholder-count="1"><i class="ti {{ fl.icon }}" title="{{ fl.title }}"></i></sc-for>
+                        </div>
+                      </div>
+                      <div style="width:1px;align-self:stretch;background:#27272a"></div>
+                      <div style="min-width:48px;padding:0 8px;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:24px;font-weight:600">{{ c.table }}</div>
+                    </div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ sec.isEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:20px 16px;font-size:14px;color:#71717a">Sin reservas en esta sección.</div></sc-if>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:48px 24px;text-align:center;color:#a1a1aa;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:8px"><i class="ti ti-search" style="font-size:40px;color:#52525b"></i>No hay reservas que coincidan con la búsqueda.</div>
+          </sc-if>
+        </div>
+        <div style="flex:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:8px;border-top:1px solid #27272a;background:#0f0f11">
+          <sc-for list="{{ shortcuts }}" as="sc" hint-placeholder-count="6">
+            <button onClick="{{ sc.pick }}" title="{{ sc.name }}" style="min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 2px;border:0;border-radius:10px;background:transparent;color:{{ sc.color }};cursor:pointer;transition:background 150ms,color 150ms" style-hover="background:#1c1c1f;color:#fafafa">
+              <span style="position:relative;width:40px;height:40px;border-radius:8px;border:2px solid {{ sc.border }};display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti {{ sc.icon }}"></i><sc-if value="{{ sc.has }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-8px;right:-8px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#27272a;color:#fafafa;font-size:10px;line-height:12px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ sc.count }}</span></sc-if></span>
+              <span style="font-size:12px;line-height:16px;font-weight:500;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sc.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showPlanPanel }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0">
+        <div style="display:flex;gap:16px;padding:8px 16px 0;overflow-x:auto;scrollbar-width:none">
+          <sc-for list="{{ floors }}" as="f" hint-placeholder-count="5">
+            <button onClick="{{ f.pick }}" style="height:48px;padding:0 16px;border:0;border-radius:16px 16px 0 0;background:{{ f.bg }};color:{{ f.color }};cursor:pointer;font-size:14px;line-height:20px;font-weight:{{ f.fw }};white-space:nowrap;transition:color 150ms" style-hover="color:#fafafa">{{ f.name }}</button>
+          </sc-for>
+        </div>
+        <div style="flex:1;min-height:0;position:relative;background:#18181a">
+          <div style="position:absolute;inset:0;overflow:auto">
+            <div style="width:{{ canvasW }};height:{{ canvasH }};position:relative">
+              <div style="position:absolute;left:0;top:0;width:600px;height:640px;transform:scale({{ scale }});transform-origin:0 0;transition:transform 200ms cubic-bezier(0.4,0,0.2,1)">
+                <sc-for list="{{ decor }}" as="d" hint-placeholder-count="6">
+                  <div style="position:absolute;left:{{ d.x }};top:{{ d.y }};width:{{ d.w }};height:{{ d.h }};background:#222225;border-radius:3px"></div>
+                </sc-for>
+                <sc-for list="{{ tables }}" as="t" hint-placeholder-count="8">
+                  <div onClick="{{ t.pick }}" title="{{ t.title }}" style="position:absolute;left:{{ t.left }};top:{{ t.top }};width:{{ t.size }};height:{{ t.size }};cursor:pointer">
+                    <sc-if value="{{ t.hasRes }}" hint-placeholder-val="{{ false }}"><span title="{{ t.turnoName }}" style="width:12px;height:12px;flex:none;border-radius:2px;background:#09090b;color:#fafafa;border:1px solid #3f3f46;font-size:8px;line-height:12px;font-weight:600;display:flex;align-items:center;justify-content:center;position:absolute;top:-4px;right:-4px;z-index:2">{{ t.turno }}</span></sc-if>
+                    <div style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:8px;display:flex;gap:2px;align-items:center;white-space:nowrap;font-size:10px;line-height:12px;font-weight:500">{{ t.label }}<sc-if value="{{ t.blocked }}" hint-placeholder-val="{{ false }}"><span style="background:#dc2626;color:#fff;font-size:8px;line-height:12px;padding:0 2px;border-radius:2px">{{ t.blockText }}</span></sc-if></div>
+                    <div style="position:absolute;left:50%;top:-7px;transform:translateX(-50%);width:16px;height:6px;border-radius:3px 3px 0 0;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);width:16px;height:6px;border-radius:0 0 3px 3px;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;top:50%;left:-7px;transform:translateY(-50%);width:6px;height:16px;border-radius:3px 0 0 3px;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;top:50%;right:-7px;transform:translateY(-50%);width:6px;height:16px;border-radius:0 3px 3px 0;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;inset:0;border-radius:{{ t.radius }};background:{{ t.bg }};color:{{ t.fg }};box-shadow:{{ t.ring }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;font-size:{{ t.fs }};line-height:{{ t.lh }};transition:box-shadow 150ms,filter 150ms" style-hover="filter:brightness(1.12)">
+                      <sc-if value="{{ t.hasRes }}" hint-placeholder-val="{{ true }}">
+                        <span style="background:#26292e;color:#fafafa;border-radius:2px;padding:0 2px;white-space:nowrap">{{ t.time }}</span>
+                        <span style="max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">{{ t.guest }}</span>
+                        <span style="align-self:flex-end;display:flex;align-items:center;gap:1px"><i class="ti ti-user"></i>{{ t.pax }}</span>
+                      </sc-if>
+                      <sc-if value="{{ t.free }}" hint-placeholder-val="{{ false }}"><span style="color:#a1a1aa">Libre · {{ t.max }}</span></sc-if>
+                      <sc-if value="{{ t.blocked }}" hint-placeholder-val="{{ false }}"><i class="ti {{ t.blockIcon }}" style="font-size:16px;color:#a1a1aa"></i></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ noTables }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;left:40px;top:60px;color:#a1a1aa;font-size:16px;display:flex;align-items:center;gap:8px"><i class="ti ti-armchair-off" style="font-size:24px;color:#52525b"></i>Este ambiente no tiene mesas configuradas.</div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px;pointer-events:none">
+            <div style="display:flex;gap:16px;padding:0 8px;pointer-events:auto;background:#18181a;border-radius:999px">
+              <sc-for list="{{ tools }}" as="b" hint-placeholder-count="4">
+                <button onClick="{{ b.pick }}" aria-label="{{ b.label }}" title="{{ b.label }}" style="width:40px;height:40px;border:0;border-radius:999px;background:{{ b.bg }};cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#27272a"><i class="ti {{ b.icon }}"></i></button>
+              </sc-for>
+            </div>
+            <div style="height:40px;display:flex;align-items:center;gap:16px;padding:0 16px;pointer-events:auto;background:#18181a;border-radius:999px">
+              <button onClick="{{ zoomIn }}" aria-label="Acercar" style="width:24px;height:24px;padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-zoom-in"></i></button>
+              <span style="min-width:40px;text-align:center;font-size:14px;line-height:20px;font-weight:700">{{ zoomLabel }}</span>
+              <button onClick="{{ zoomOut }}" aria-label="Alejar" style="width:24px;height:24px;padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-zoom-out"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ========== VISTA TIMELINE / KANBAN ========== -->
+    <sc-if value="{{ showAlt }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0">
+        <div style="display:flex;align-items:center;gap:16px;padding:8px 16px 0;flex-wrap:wrap">
+          <sc-if value="{{ isKanban }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1 1 420px;display:flex;align-items:center;gap:12px;padding-bottom:8px;flex-wrap:wrap">
+              <span style="font-size:16px;font-weight:600;white-space:nowrap">Todos los ambientes</span>
+              <div style="display:flex;gap:4px;padding:4px;background:#141416;border:1px solid #27272a;border-radius:10px">
+                <sc-for list="{{ kbModes }}" as="m" hint-placeholder-count="2">
+                  <button onClick="{{ m.pick }}" title="{{ m.hint }}" style="height:32px;padding:0 12px;border:0;border-radius:7px;background:{{ m.bg }};cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;transition:background 150ms" style-hover="background:#27272a">{{ m.name }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;flex:1 1 420px;min-width:0">
+            <sc-for list="{{ altTabs }}" as="f" hint-placeholder-count="6">
+              <button onClick="{{ f.pick }}" style="height:48px;padding:0 16px;border:0;border-radius:16px 16px 0 0;background:{{ f.bg }};color:{{ f.color }};cursor:pointer;font-size:14px;line-height:20px;font-weight:{{ f.fw }};white-space:nowrap;transition:color 150ms" style-hover="color:#fafafa">{{ f.name }}</button>
+            </sc-for>
+          </div>
+          </sc-if>
+          <div style="display:flex;align-items:center;gap:16px;flex:1 1 300px;justify-content:flex-end;padding-bottom:8px">
+            <label style="flex:0 1 352px;min-width:0;height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border:1px solid #27272a;border-radius:12px;background:#0f0f11;color:#71717a;transition:border-color 150ms" style-hover="border-color:#3f3f46">
+              <i class="ti ti-search" style="font-size:16px"></i>
+              <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar reserva" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font:inherit;font-size:12px;line-height:16px">
+            </label>
+            <button onClick="{{ openLegend }}" aria-label="Leyenda" title="Leyenda" style="width:40px;height:40px;flex:none;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-question-mark"></i></button>
+            <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ false }}">
+              <div style="height:40px;flex:none;display:flex;align-items:center;gap:16px;border:1px solid #27272a;border-radius:999px;background:#141416;padding:0 16px">
+                <button onClick="{{ tlZoomIn }}" aria-label="Acercar" style="width:24px;height:24px;padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-zoom-in"></i></button>
+                <span style="min-width:40px;text-align:center;font-size:14px;line-height:20px;font-weight:700">{{ tlZoomLabel }}</span>
+                <button onClick="{{ tlZoomOut }}" aria-label="Alejar" style="width:24px;height:24px;padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-zoom-out"></i></button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ false }}">
+          <div ref="{{ tlRef }}" style="flex:1;min-height:0;overflow:auto;background:#18181a;border-top:1px solid #27272a">
+            <div style="width:{{ tlW }};position:relative;min-height:100%">
+              <div style="display:flex;position:sticky;top:0;z-index:6;background:#141416;border-bottom:1px solid #27272a;height:40px">
+                <div style="position:sticky;left:0;z-index:7;width:128px;flex:none;background:#141416;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:12px;line-height:16px;font-weight:600;border-right:1px solid #27272a">Mesa<span style="color:#a1a1aa">Max</span></div>
+                <sc-for list="{{ tlHours }}" as="h" hint-placeholder-count="8">
+                  <div style="width:{{ h.w }};flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:16px;font-weight:600;border-right:1px solid #27272a;white-space:nowrap">{{ h.label }}</div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ tlFloors }}" as="f" hint-placeholder-count="3">
+                <div>
+                  <div style="display:flex;height:24px;background:#0f0f11;border-bottom:1px solid #27272a">
+                    <div style="position:sticky;left:0;z-index:5;width:128px;flex:none;background:#0f0f11;display:flex;align-items:center;gap:8px;padding:0 16px;font-size:12px;line-height:16px;font-weight:600;border-right:1px solid #27272a;white-space:nowrap">{{ f.name }}<span style="color:#a1a1aa">{{ f.countLabel }}</span></div>
+                  </div>
+                  <sc-for list="{{ f.rows }}" as="row" hint-placeholder-count="3">
+                    <div style="display:flex;height:40px;border-bottom:1px solid #27272a">
+                      <div style="position:sticky;left:0;z-index:5;width:128px;flex:none;background:#141416;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:12px;line-height:16px;font-weight:600;border-right:1px solid #27272a">
+                        <span style="display:flex;align-items:center;gap:8px">{{ row.name }}<sc-if value="{{ row.blocked }}" hint-placeholder-val="{{ false }}"><i class="ti {{ row.blockIcon }}" title="{{ row.blockText }}" style="color:#f87171;font-size:16px"></i></sc-if></span>
+                        <span style="color:#a1a1aa">{{ row.max }}</span>
+                      </div>
+                      <div style="position:relative;flex:1;background-image:{{ row.bgImg }}">
+                        <sc-for list="{{ row.bars }}" as="b" hint-placeholder-count="1">
+                          <button onClick="{{ b.open }}" title="{{ b.title }}" style="position:absolute;top:4px;height:32px;left:{{ b.left }};width:{{ b.width }};border:0;border-radius:8px;background:{{ b.bg }};color:{{ b.fg }};opacity:{{ b.op }};box-shadow:{{ b.ring }};display:flex;align-items:center;gap:4px;padding:0 4px 0 12px;cursor:pointer;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-align:left;transition:filter 150ms" style-hover="filter:brightness(1.12)">
+                            <span title="{{ b.turnoName }}" style="width:16px;height:16px;flex:none;border-radius:4px;background:#09090b;color:#fafafa;border:1px solid #3f3f46;font-size:10px;line-height:12px;font-weight:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);border-color:transparent">{{ b.turno }}</span><i class="ti {{ b.icon }}" style="font-size:16px;flex:none"></i>
+                            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ b.title }}</span>
+                            <span style="font-size:12px;line-height:16px;flex:none">{{ b.time }}</span>
+                            <span style="flex:none;height:24px;display:flex;align-items:center;gap:2px;background:{{ b.paxBg }};color:{{ b.paxFg }};border-radius:8px;padding:0 4px;font-size:12px;line-height:16px;font-weight:600"><i class="ti ti-user"></i>{{ b.pax }}</span>
+                          </button>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <sc-if value="{{ tlEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="position:sticky;left:0;width:min(100vw,600px);padding:48px 24px;color:#a1a1aa;font-size:14px;display:flex;align-items:center;gap:8px"><i class="ti ti-armchair-off" style="font-size:24px;color:#52525b"></i>Este ambiente no tiene mesas configuradas.</div>
+              </sc-if>
+              <sc-if value="{{ showNow }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:40px;bottom:0;left:{{ nowX }};width:2px;background:#ff8c1a;z-index:4;pointer-events:none">
+                  <div style="position:absolute;top:-4px;left:-3px;width:8px;height:8px;border-radius:50%;background:#ff8c1a"></div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isKanban }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;min-height:0;overflow:auto;background:#18181a;border-top:1px solid #27272a;padding:16px;display:flex;gap:12px;align-items:flex-start">
+            <sc-for list="{{ kanban }}" as="col" hint-placeholder-count="5">
+              <div onDragOver="{{ col.over }}" onDragLeave="{{ col.leave }}" onDrop="{{ col.drop }}" style="width:296px;flex:none;display:flex;flex-direction:column;background:{{ col.dzBg }};border:1px solid {{ col.dzBorder }};border-radius:12px;max-height:100%;transition:background 150ms,border-color 150ms">
+                <div style="display:flex;flex-direction:column;gap:8px;padding:12px 16px;border-bottom:1px solid #232326">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600">
+                    <span style="width:10px;height:10px;border-radius:3px;background:{{ col.color }};flex:none"></span>
+                    <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ col.name }}</span>
+                    <span style="flex:none;font-size:12px;font-weight:500;color:#a1a1aa;background:#1f1f22;border-radius:999px;padding:2px 8px">{{ col.count }}</span>
+                    <span style="flex:none;display:flex;align-items:center;gap:4px;font-size:12px;color:#a1a1aa;font-weight:500"><i class="ti ti-user"></i>{{ col.pax }}</span>
+                  </div>
+                  <sc-if value="{{ col.hasSub }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">
+                      <sc-for list="{{ col.sub }}" as="sb" hint-placeholder-count="2">
+                        <span style="display:flex;align-items:center;gap:4px;font-size:12px;color:#d4d4d8;border:1px solid #27272a;border-radius:999px;padding:2px 8px;white-space:nowrap"><span style="width:7px;height:7px;border-radius:2px;background:{{ sb.c }}"></span>{{ sb.n }} {{ sb.count }}</span>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;padding:8px;overflow-y:auto;overflow-x:hidden">
+                  <sc-if value="{{ col.isEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 8px;border:1px dashed #3f3f46;border-radius:10px;text-align:center;font-size:12px;color:#71717a">Suelta aquí para cambiar a {{ col.name }}</div></sc-if>
+                  <sc-for list="{{ col.items }}" as="c" hint-placeholder-count="3">
+                    <div onClick="{{ c.pick }}" draggable="true" onDragStart="{{ c.dragStart }}" onDragEnd="{{ c.dragEnd }}" title="Arrastra para cambiar el estado" style="min-width:0;opacity:{{ c.dragOp }};background:#1a1a1d;border:1px solid #27272a;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;cursor:grab;box-shadow:{{ c.ring }};transition:background 150ms,border-color 150ms" style-hover="background:#202024;border-color:#3f3f46">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <button onClick="{{ c.openStatus }}" title="Cambiar estado" style="height:32px;flex:none;border:1.5px solid {{ c.stColor }};border-radius:999px;background:transparent;color:{{ c.stColor }};display:flex;align-items:center;gap:8px;padding:0 8px 0 8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 150ms" style-hover="background:#1f1f22"><i class="ti {{ c.stIcon }}" style="font-size:16px"></i><span style="white-space:nowrap">{{ c.stName }}</span><i class="ti ti-chevron-down" style="font-size:16px"></i></button>
+                        <span style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;white-space:nowrap"><span title="{{ c.turnoName }}" style="width:16px;height:16px;flex:none;border-radius:4px;background:#09090b;color:#fafafa;border:1px solid #3f3f46;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;">{{ c.turno }}</span><i class="ti ti-clock" style="font-size:16px;color:#a1a1aa"></i>{{ c.time }}</span>
+                      </div>
+                      <div style="display:flex;flex-direction:column;gap:2px">
+                        <span style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</span>
+                        <span style="font-size:12px;color:#a1a1aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.table }} · {{ c.floor }} · {{ c.range }}</span>
+                      </div>
+                      <div style="display:flex;flex-wrap:wrap;gap:8px">
+                        <span style="font-size:12px;font-weight:500;color:#ff8c1a;border:1px solid #7a4a17;border-radius:999px;padding:2px 8px;white-space:nowrap">{{ c.type }}</span>
+                        <sc-if value="{{ c.label }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:500;color:#fff;background:#1f7ae0;border-radius:999px;padding:2px 8px;white-space:nowrap">{{ c.label }}</span></sc-if>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:8px;color:#a1a1aa;font-size:16px">
+                        <span title="{{ c.paxTitle }}" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;background:{{ c.paxBg }};color:{{ c.paxFg }};border-radius:6px;padding:1px 8px"><i class="ti ti-user"></i>{{ c.pax }}</span>
+                        <sc-for list="{{ c.flags }}" as="fl" hint-placeholder-count="1"><i class="ti {{ fl.icon }}" title="{{ fl.title }}"></i></sc-for>
+                        <sc-if value="{{ c.hasNext }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ c.advance }}" title="Pasar a {{ c.nextName }}" aria-label="Pasar a {{ c.nextName }}" style="margin-left:auto;width:32px;height:32px;flex:none;border:1px solid #3f3f46;border-radius:6px;background:transparent;color:#fafafa;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-arrow-right"></i></button>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ col.isEmpty }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:20px 8px;text-align:center;font-size:12px;color:#71717a">Sin reservas</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- STATUS MENU -->
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeMenu }}" style="position:fixed;inset:0;z-index:70"></div>
+    <div style="position:fixed;left:{{ menuX }};top:{{ menuY }};z-index:71;width:248px;max-height:80vh;overflow:auto;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+      <div style="padding:8px 8px 8px;font-size:12px;color:#a1a1aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Estado · {{ menuName }}</div>
+      <div style="padding:8px 8px 4px;font-size:12px;font-weight:600;color:#71717a">Reserva</div>
+      <sc-for list="{{ statusRes }}" as="o" hint-placeholder-count="4">
+        <button onClick="{{ o.pick }}" style="width:100%;display:flex;align-items:center;gap:8px;border:0;background:{{ o.bg }};padding:8px 8px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a">
+          <span style="width:24px;height:24px;flex:none;border-radius:6px;border:1.5px solid {{ o.c }};background:{{ o.sb }};color:{{ o.si }};display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti {{ o.i }}"></i></span>
+          <span style="flex:1">{{ o.n }}</span><i class="ti ti-check" style="font-size:16px;opacity:{{ o.checkOp }}"></i>
+        </button>
+      </sc-for>
+      <div style="height:1px;background:#27272a;margin:8px 4px"></div>
+      <div style="padding:8px 8px 4px;font-size:12px;font-weight:600;color:#71717a">Mesa</div>
+      <sc-for list="{{ statusMesa }}" as="o" hint-placeholder-count="4">
+        <button onClick="{{ o.pick }}" style="width:100%;display:flex;align-items:center;gap:8px;border:0;background:{{ o.bg }};padding:8px 8px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a">
+          <span style="width:24px;height:24px;flex:none;border-radius:6px;border:1.5px solid {{ o.c }};background:{{ o.sb }};color:{{ o.si }};display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti {{ o.i }}"></i></span>
+          <span style="flex:1">{{ o.n }}</span><i class="ti ti-check" style="font-size:16px;opacity:{{ o.checkOp }}"></i>
+        </button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- LEGEND -->
+  <sc-if value="{{ legendOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLegend }}" style="position:fixed;inset:0;z-index:80;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:16px">
+      <div onClick="{{ stop }}" style="width:100%;max-width:720px;max-height:90vh;overflow:auto;background:#141416;border:1px solid #27272a;border-radius:16px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px 40px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)">
+        <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:16px;font-weight:600">Leyenda</span>
+          <button onClick="{{ closeLegend }}" aria-label="Cerrar" style="width:40px;height:40px;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:20px;color:#a1a1aa;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a;color:#fafafa"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:16px;font-weight:600">Íconos</span>
+          <sc-for list="{{ lgIcons }}" as="li" hint-placeholder-count="8">
+            <div style="display:flex;align-items:center;gap:16px;font-size:14px"><i class="ti {{ li.icon }}" style="font-size:20px;width:24px;text-align:center"></i>{{ li.name }}</div>
+          </sc-for>
+          <span style="font-size:16px;font-weight:600;margin-top:12px">Reservas</span>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;border-radius:5px;background:#E00000"></span>Con conflicto de horas</div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;border-radius:5px;background:#FFC27A"></span>Con conflicto de paxs</div>
+          <span style="font-size:16px;font-weight:600;margin-top:12px">Turnos</span>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;border-radius:5px;background:#09090b;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">D</span>Desayuno</div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;border-radius:5px;background:#09090b;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">A</span>Almuerzo</div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;border-radius:5px;background:#09090b;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">C</span>Cena</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:16px;font-weight:600">Estados</span><span style="font-size:12px;color:#a1a1aa;margin-top:-8px">El cuadro de la derecha es el color de la mesa en el plano.</span>
+          <sc-for list="{{ lgStatus }}" as="ls" hint-placeholder-count="11">
+            <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;flex:none;border-radius:6px;border:1.5px solid {{ ls.c }};background:{{ ls.sb }};color:{{ ls.si }};display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti {{ ls.i }}"></i></span><span style="flex:1">{{ ls.n }}</span><span style="width:14px;height:14px;flex:none;border-radius:3px;background:{{ ls.mesa }}"></span></div>
+          </sc-for>
+          <div style="height:1px;background:#27272a;margin:4px 0"></div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><span style="width:24px;height:24px;border-radius:5px;background:#E00000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-alert-triangle"></i></span>Con conflicto de horas</div>
+          <div style="height:1px;background:#27272a;margin:4px 0"></div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><i class="ti ti-ban" style="font-size:20px;width:24px;text-align:center"></i>Bloqueada</div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:14px"><i class="ti ti-clock-off" style="font-size:20px;width:24px;text-align:center"></i>Bloqueada por turno</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isOperacion }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:60;background:#0b0b0c">
+      <dc-import name="Operacion y Horarios" on-nav="{{ navTo }}" hint-size="100%,100%" style="position:absolute;inset:0"></dc-import>
+    </div>
+  </sc-if>
+
+  <!-- NAV DRAWER -->
+  <div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;z-index:40;background:rgba(0,0,0,0.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:{{ backdropOp }};pointer-events:{{ backdropPe }};transition:opacity 250ms cubic-bezier(0.4,0,0.2,1)"></div>
+  <nav style="position:fixed;top:0;left:0;bottom:0;z-index:50;width:360px;max-width:88vw;background:#0d0d0f;border-right:1px solid #27272a;display:flex;flex-direction:column;padding:24px 16px 16px;overflow-y:auto;transform:translateX({{ drawerX }});transition:transform 300ms cubic-bezier(0.4,0,0.2,1)">
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;margin-bottom:24px;position:relative">
+      <span style="width:24px;height:24px;border-radius:6px;background:#fafafa;color:#0d0d0f;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-armchair-2"></i></span>
+      <span>mesa <b style="font-weight:700;font-size:16px">24/7</b></span>
+      <button onClick="{{ closeDrawer }}" aria-label="Cerrar menú" style="position:absolute;right:0;width:40px;height:40px;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:20px;color:#a1a1aa;display:flex;align-items:center;justify-content:center" style-hover="background:#1f1f22;color:#fafafa"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px 8px 8px;border:1px solid #3f3f46;border-radius:999px;background:#141416">
+      <span style="width:40px;height:40px;flex:none;border-radius:50%;background:#27272a;border:1px solid #3f3f46;color:#fafafa;display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ti ti-building-store"></i></span>
+      <span style="flex:1;display:flex;flex-direction:column;line-height:1.25"><span style="font-size:12px;color:#a1a1aa">Local</span><span style="font-size:14px">{{ localName }}</span></span>
+      <i class="ti ti-chevron-down" style="font-size:20px"></i>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:24px;padding:0 16px 20px;border-bottom:1px solid #27272a;margin-left:-16px;margin-right:-16px">
+      <sc-for list="{{ navTop }}" as="n" hint-placeholder-count="2">
+        <button onClick="{{ n.pick }}" style="height:48px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-radius:14px;background:{{ n.bg }};cursor:pointer;font-size:14px;text-align:left;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ n.icon }}" style="font-size:20px"></i>{{ n.name }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:20px">
+      <sc-for list="{{ navMid }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.pick }}" style="height:48px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-radius:14px;background:{{ n.bg }};cursor:pointer;font-size:14px;text-align:left;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ n.icon }}" style="font-size:20px"></i>{{ n.name }}</button>
+      </sc-for>
+    </div>
+    <div style="flex:1;min-height:24px"></div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ navBottom }}" as="n" hint-placeholder-count="3">
+        <button onClick="{{ n.pick }}" style="height:48px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-radius:14px;background:{{ n.bg }};cursor:pointer;font-size:14px;text-align:left;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ n.icon }}" style="font-size:20px"></i>{{ n.name }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ openProfile }}" style="margin-top:8px;display:flex;align-items:center;gap:8px;padding:8px 16px 8px 8px;border:1px solid #3f3f46;border-radius:999px;background:#141416;cursor:pointer;text-align:left;transition:background 150ms" style-hover="background:#1f1f22">
+      <span style="position:relative;width:40px;height:40px;border-radius:50%;background:#3f3f46;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">CA<span style="position:absolute;top:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid #141416"></span></span>
+      <span style="flex:1;display:flex;flex-direction:column;line-height:1.25"><span style="font-size:14px">Carlos Arbieto</span><span style="font-size:12px;color:#a1a1aa">Admin</span></span>
+      <i class="ti ti-chevron-right" style="font-size:20px"></i>
+    </button>
+  </nav>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;background:#fafafa;color:#09090b;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;max-width:90vw"><i class="ti ti-info-circle" style="font-size:20px"></i>{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DAYS=['Dom.','Lun.','Mar.','Mié.','Jue.','Vie.','Sáb.'];
+const MONTHS=['Ene.','Feb.','Mar.','Abr.','May.','Jun.','Jul.','Ago.','Set.','Oct.','Nov.','Dic.'];
+// key: [nombre, color, texto, icono]
+// key: [nombre, color, texto, icono, relleno]
+const ST={
+ reservada:['Reservada','#3DDC1A','#0b1400','ti-book',0],
+ reconfirmada:['Reconfirmada','#1FAF2A','#ffffff','ti-checks',0],
+ pendiente:['Pendiente','#14B8A6','#03201c','ti-loader-2',0],
+ llego:['Llegó','#3B82F6','#ffffff','ti-map-pin',1],
+ parcial:['Parcialmente sentado','#8B7CF6','#ffffff','ti-user-minus',0],
+ sentado:['Sentado','#A855F7','#ffffff','ti-user-check',1],
+ entrada:['Entrada','#F5B400','#1a1200','ti-number-1',0],
+ segundo:['Segundo','#F08C00','#1a0f00','ti-number-2',0],
+ postre:['Postre','#EA6A0F','#140800','ti-number-3',0],
+ pagando:['Pagando','#C9C22E','#1a1a00','ti-cash',0],
+ pago:['Pagó','#16A34A','#ffffff','ti-currency-dollar',0],
+ atendida:['Atendida','#EC4899','#ffffff','ti-check',1],
+ conflicto:['Con conflicto de horas','#EF4444','#ffffff','ti-alert-triangle',1],
+ noshow:['No show','#a1a1aa','#09090b','ti-ghost',0],
+ cancelada:['Cancelada','#DC2626','#ffffff','ti-x',0],
+ espera:['En espera','#a1a1aa','#09090b','ti-clipboard-list',0]
+};
+const ST_RES=['reservada','reconfirmada','pendiente','noshow','cancelada'];
+const ST_MESA=['llego','parcial','sentado','entrada','segundo','postre','pagando','pago','atendida'];
+const NO_PAINT=['noshow','cancelada','espera'];
+const SECTIONS=[['espera','En espera','ti-clipboard-list',['espera']],['reservas','Reservas','ti-book',['reservada','reconfirmada','pendiente','conflicto','llego']],
+ ['sentados','Sentados','ti-user-check',['parcial','sentado','entrada','segundo','postre','pagando','pago']],['atendidas','Atendidas','ti-check',['atendida']],
+ ['canceladas','Canceladas','ti-x',['cancelada']],['noshow','No show','ti-ghost',['noshow']]];
+const FLAG={frecuente:['ti-award','Cliente frecuente'],nuevo:['ti-star','Cliente nuevo'],widget:['ti-circle-letter-w','Reserva vía Widget'],
+ garantia:['ti-credit-card','Garantía de reserva'],web:['ti-world-www','Reserva vía web Mesa24/7'],notas:['ti-message-dots','Notas del comensal'],cumple:['ti-cake','Cumpleaños']};
+const LG_ICONS=[['ti-lock','Cerrar cupos'],['ti-message-circle','Mensajería'],['ti-bell','Notificaciones'],['ti-walk','Walk-in'],['ti-calendar-plus','Reservar'],
+ ['ti-award','Cliente frecuente'],['ti-star','Cliente nuevo'],['ti-book','Reservas'],['ti-clipboard-list','Lista de espera'],['ti-circle-letter-w','Reserva vía Widget'],
+ ['ti-credit-card','Garantía de reserva'],['ti-world-www','Reserva vía web Mesa24/7'],['ti-message-dots','Notas del comensal'],['ti-cake','Cumpleaños']];
+const CAP={'12:30':27,'12:45':38,'13:00':32,'14:00':30,'16:00':30,'20:00':40,'20:30':36};
+const FLOORS=['1er Piso','2do Piso','Terraza','Almacen','Barra'];
+const TABLES=[
+ {n:'M1',f:'1er Piso',max:4,sh:'sq',s:120,cx:200,cy:200},
+ {n:'M2',f:'1er Piso',max:6,sh:'sq',s:130,cx:480,cy:200},
+ {n:'M3',f:'2do Piso',max:4,sh:'round',s:90,cx:304,cy:180},
+ {n:'M4',f:'2do Piso',max:6,sh:'sq',s:105,cx:468,cy:131},
+ {n:'M5',f:'2do Piso',max:2,sh:'sq',s:105,cx:783,cy:132},
+ {n:'M6',f:'2do Piso',max:2,sh:'sq',s:105,cx:136,cy:304},
+ {n:'M7',f:'2do Piso',max:4,sh:'sq',s:105,cx:674,cy:352},
+ {n:'M8',f:'2do Piso',max:8,sh:'round',s:130,cx:373,cy:447},
+ {n:'M9',f:'2do Piso',max:6,sh:'sq',s:105,cx:120,cy:623},
+ {n:'M10',f:'2do Piso',max:2,sh:'sq',s:105,cx:656,cy:622},
+ {n:'M11',f:'2do Piso',max:4,sh:'sq',s:105,cx:369,cy:715,blk:'bloqueada'},
+ {n:'M12',f:'Terraza',max:6,sh:'sq',s:120,cx:220,cy:220},
+ {n:'M13',f:'Terraza',max:2,sh:'round',s:100,cx:500,cy:220},
+ {n:'M14',f:'Terraza',max:4,sh:'sq',s:120,cx:360,cy:480,blk:'turno'},
+ {n:'B1',f:'Barra',max:6,sh:'round',s:90,cx:200,cy:200},
+ {n:'B2',f:'Barra',max:2,sh:'round',s:80,cx:360,cy:200},
+ {n:'B3',f:'Barra',max:4,sh:'round',s:80,cx:520,cy:200}
+];
+const TBL=Object.fromEntries(TABLES.map(t=>[t.n,t]));
+const RES=[
+ {id:1,time:'12:30',dur:120,name:'Pablo Plans Dimanuel',pax:3,st:'sentado',type:'A la Carta',table:'M9',flags:['frecuente','notas']},
+ {id:2,time:'12:30',dur:90,name:'Dinithi Kemper',pax:2,st:'parcial',type:'A la Carta',label:'Etiqueta',table:'M3',flags:['widget']},
+ {id:3,time:'12:30',dur:120,name:'María Fernanda Quispe',pax:4,st:'segundo',type:'A la Carta',table:'M8',flags:['cumple','garantia']},
+ {id:4,time:'12:45',dur:120,name:'Jorge Salazar Rivas',pax:5,st:'reconfirmada',type:'A la Carta',table:'M7',flags:['frecuente']},
+ {id:5,time:'12:45',dur:105,name:'Lucía Torres Bravo',pax:2,st:'pendiente',type:'Menú degustación',table:'M5',flags:['nuevo','web']},
+ {id:6,time:'12:45',dur:90,name:'Andrés Gamarra',pax:2,st:'reservada',type:'A la Carta',table:'M12',flags:[]},
+ {id:7,time:'12:45',dur:90,name:'Valeria Ríos',pax:3,st:'cancelada',type:'A la Carta',table:'M13',flags:['notas']},
+ {id:8,time:'13:00',dur:90,name:'Sofía Delgado',pax:2,st:'llego',type:'A la Carta',table:'M10',flags:['widget']},
+ {id:9,time:'13:00',dur:90,name:'Renato Vela',pax:4,st:'pagando',type:'A la Carta',table:'M2',flags:['garantia']},
+ {id:10,time:'13:00',dur:60,name:'Mateo Linares',pax:2,st:'reservada',type:'A la Carta',table:'B2',flags:[]},
+ {id:11,time:'13:00',dur:120,name:'Gabriela Núñez',pax:5,st:'cancelada',type:'A la Carta',table:'M6',flags:['cumple']},
+ {id:12,time:'14:00',dur:180,name:'Daniela Castillo',pax:2,st:'noshow',type:'A la Carta',table:'M4',flags:['web']},
+ {id:13,time:'14:00',dur:90,name:'Ricardo Paz',pax:2,st:'atendida',type:'A la Carta',table:'B3',flags:[]},
+ {id:14,time:'16:00',dur:150,name:'Carlos Meneces',pax:4,st:'reservada',type:'Buffet Almuerzo S/ 69.00',table:'M1',flags:['frecuente']},
+ {id:15,time:'16:00',dur:150,name:'Pedro Salas',pax:4,st:'reservada',type:'Buffet Almuerzo S/ 69.00',table:'M2',flags:[]},
+ {id:16,time:'20:00',dur:120,name:'Camila Paredes',pax:2,st:'cancelada',type:'A la Carta',label:'Aniversario',table:'M9',flags:['cumple','widget']},
+ {id:17,time:'20:30',dur:90,name:'Diego Benavides',pax:2,st:'reservada',type:'A la Carta',table:'B1',flags:['nuevo']},
+ {id:18,time:'13:15',dur:90,name:'Fiorella Medina',pax:2,st:'espera',type:'A la Carta',table:null,flags:['nuevo']},
+ {id:19,time:'13:30',dur:90,name:'Hugo Cárdenas',pax:4,st:'espera',type:'A la Carta',table:null,flags:[]}
+];
+const DECOR={'2do Piso':[[264,10,98,82],[364,10,700,6],[340,366,335,50],[64,545,205,52],[652,642,262,26],[620,1000,262,24],[886,1162,80,70],[0,1282,250,42],[352,1286,236,42],[738,1286,302,42]],
+ '1er Piso':[[60,40,800,6],[600,420,280,60]],'Terraza':[[60,40,700,6]],'Almacen':[],'Barra':[[100,300,560,60]]};
+const TL_START=10,TL_HOURS=14;
+const TU=t=>{const h=parseInt(t);return h<11?'D':h<17?'A':'C';};const TUN={D:'Turno desayuno',A:'Turno almuerzo',C:'Turno cena'};
+const NOT={f:'Sin mesa',max:99};const tOf=r=>TBL[r.table]||NOT;
+const FLOW=['reservada','reconfirmada','llego','parcial','sentado','entrada','segundo','postre','pagando','pago','atendida'];
+const PHASES=[['Con conflicto',['conflicto'],'#E00000'],['Por llegar',['reservada','reconfirmada','pendiente'],'#3DDC1A'],['Llegada',['llego','parcial'],'#0A7CD0'],
+ ['En mesa',['sentado','entrada','segundo','postre'],'#7A00F0'],['Cierre',['pagando','pago','atendida'],'#EB2A7A']];
+const toH=t=>{const [h,m]=t.split(':').map(Number);return h+m/60;};
+const hm=h=>{const H=Math.floor(h),M=Math.round((h-H)*60);return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');};
+const f12=t=>{const h=typeof t==='number'?t:toH(t);const H=Math.floor(h+1e-9),M=Math.round((h-H)*60),hh=H%12||12;return hh+(M?':'+String(M).padStart(2,'0'):'')+' '+(H%24<12?'AM':'PM');};
+const FLOOR_PAGE='Operacion y Horarios.dc.html';
+
+class Component extends DCLogic {
+  state={w:typeof window!=='undefined'?window.innerWidth:1400,now:new Date(),drawer:false,localOpen:false,turnosOpen:false,local:'Sheraton',
+    offset:0,turno:'Todos los turnos',query:'',expanded:true,sel:1,floor:'2do Piso',zoom:100,tlZoom:100,view:'plano',pane:'list',tab:'Todos',
+    planFull:false,filterOpen:false,statusF:'Todas',cupos:false,toast:null,ov:{},menu:null,legend:false,kbMode:'estado',page:'libro'};
+  componentDidMount(){
+    const w=window.innerWidth;const st={};
+    this.setState(st);
+    this._r=()=>this.setState({w:window.innerWidth});
+    this._k=e=>{if(e.key==='Escape')this.setState({drawer:false,localOpen:false,turnosOpen:false,menu:null,legend:false});};
+    this._i=setInterval(()=>this.setState({now:new Date()}),60000);
+    window.addEventListener('resize',this._r);window.addEventListener('keydown',this._k);
+  }
+  componentWillUnmount(){window.removeEventListener('resize',this._r);window.removeEventListener('keydown',this._k);clearTimeout(this._t);clearInterval(this._i);}
+  flash(msg){clearTimeout(this._t);this.setState({toast:msg});this._t=setTimeout(()=>this.setState({toast:null}),2200);}
+  selectRes(r){this.setState(TBL[r.table]?{sel:r.id,floor:TBL[r.table].f}:{sel:r.id});}
+  openMenu(e,r){e.stopPropagation();const x=Math.min(e.clientX,window.innerWidth-256),y=Math.min(e.clientY,window.innerHeight-560);
+    this.setState({sel:r.id,menu:{id:r.id,x:Math.max(8,x),y:Math.max(8,y)}});}
+  renderVals(){
+    const s=this.state,isMobile=s.w<760,showLabels=s.w>=1180;
+    const d=new Date(s.now.getFullYear(),s.now.getMonth(),s.now.getDate()+s.offset);
+    const stOf=r=>s.ov[r.id]||r.st;
+    const q=s.query.trim().toLowerCase();
+    const inTurno=r=>s.turno==='Todos los turnos'||(s.turno==='Almuerzo'?toH(r.time)<17:toH(r.time)>=17);
+    const matchQ=r=>!q||r.name.toLowerCase().includes(q)||r.table.toLowerCase().includes(q);
+    const seatedKeys=['sentado','parcial','entrada','segundo','postre','pagando'];
+    const inStatus=r=>s.statusF==='Todas'||(s.statusF==='En mesa'?seatedKeys.includes(stOf(r)):s.statusF==='Por llegar'?['reservada','reconfirmada'].includes(stOf(r)):['pago','atendida'].includes(stOf(r)));
+    const altFloor=r=>s.view!=='timeline'||s.tab==='Todos'||tOf(r).f===s.tab;
+    const filtered=RES.filter(r=>inTurno(r)&&matchQ(r)&&inStatus(r)&&altFloor(r));
+    const card=r=>{const k=stOf(r),st=ST[k],t=tOf(r),over=r.pax>t.max,sel=r.id===s.sel;const h=toH(r.time);
+      return {id:r.id,time:f12(r.time),turno:TU(r.time),turnoName:TUN[TU(r.time)],name:r.name,floor:t.f,table:r.table,pax:r.pax,type:r.type,label:r.label||'',range:f12(r.time)+' - '+f12(h+r.dur/60),
+        stColor:st[1],stFg:st[2],stIcon:st[3],stName:st[0],stBg:st[4]?st[1]:'transparent',stIc:st[4]?st[2]:st[1],table:r.table||'—',flags:(r.flags||[]).map(f=>({icon:FLAG[f][0],title:FLAG[f][1]})),
+        paxBg:over?'#FFC27A':'transparent',paxFg:over?'#1a0d00':'#fafafa',paxTitle:over?'Con conflicto de paxs (máx. '+t.max+')':'Personas',
+        bg:sel?'#1c1c1f':'transparent',edge:sel?st[1]:'transparent',ring:sel?'0 0 0 2px '+st[1]:'none',
+        pick:()=>this.selectRes(r),openStatus:e=>this.openMenu(e,r),
+        dragOp:s.kbDrag===r.id?0.4:1,dragStart:e=>{e.dataTransfer.setData('text/plain',String(r.id));e.dataTransfer.effectAllowed='move';setTimeout(()=>this.setState({kbDrag:r.id}),0);},dragEnd:()=>this.setState({kbDrag:null,kbHover:null}),
+        hasNext:FLOW.indexOf(k)>-1&&FLOW.indexOf(k)<FLOW.length-1,nextName:FLOW.indexOf(k)>-1&&FLOW[FLOW.indexOf(k)+1]?ST[FLOW[FLOW.indexOf(k)+1]][0]:'',
+        advance:e=>{e.stopPropagation();const nx=FLOW[FLOW.indexOf(k)+1];if(nx)this.setState({sel:r.id,ov:{...this.state.ov,[r.id]:nx}});}};};
+    const byTime=(a,b)=>toH(a.time)-toH(b.time)||a.id-b.id;
+    const kbCols=(s.kbMode==='fase'?[...PHASES,['No show',['noshow'],'#a1a1aa'],['Canceladas',['cancelada'],'#DC2626']]:[['Con conflicto de horas',['conflicto'],ST.conflicto[1]],...['reservada','reconfirmada','pendiente',...ST_MESA].map(k=>[ST[k][0],[k],ST[k][1]]),['No show',['noshow'],ST.noshow[1]],['Cancelada',['cancelada'],ST.cancelada[1]]]).map(([name,keys,color])=>{
+      const items=filtered.filter(r=>keys.includes(stOf(r))).sort(byTime);
+      const hot=s.kbHover===name;
+      return {name,color,count:items.length,pax:items.reduce((a,r)=>a+r.pax,0),items:items.map(card),isEmpty:!items.length,keep:s.kbDrag!=null?keys[0]!=='conflicto':s.kbMode==='fase'?(items.length||keys[0]!=='conflicto'):items.length>0,
+        dzBg:hot?'#1f150b':'#111113',dzBorder:hot?'#ff8c1a':'#232326',
+        over:e=>{e.preventDefault();if(this.state.kbHover!==name)this.setState({kbHover:name});},leave:e=>{if(!e.currentTarget.contains(e.relatedTarget)&&this.state.kbHover===name)this.setState({kbHover:null});},
+        drop:e=>{e.preventDefault();const id=this.state.kbDrag!=null?this.state.kbDrag:Number(e.dataTransfer.getData('text/plain'));const r=filtered.find(x=>String(x.id)===String(id));
+          const to=keys[0];this.setState({kbDrag:null,kbHover:null,...(r&&stOf(r)!==to&&!keys.includes(stOf(r))?{ov:{...this.state.ov,[r.id]:to},sel:r.id}:{})});},
+        hasSub:keys.length>1&&items.length>0,sub:keys.map(k=>({n:ST[k][0],c:ST[k][1],count:items.filter(r=>stOf(r)===k).length})).filter(x=>x.count)};}).filter(c=>c.keep);
+    const grp=list=>[...new Set(list.map(r=>r.time))].sort().map(t=>{const items=list.filter(r=>r.time===t).sort(byTime);const pax=items.reduce((a,r)=>a+r.pax,0);
+      return {time:f12(t),turno:TU(t),turnoName:TUN[TU(t)],count:items.length,paxLabel:pax+'/'+(CAP[t]||30),items:items.map(card)};});
+    const secOpen=s.secOpen||{reservas:true,sentados:true};
+    const secData=SECTIONS.map(([key,name,icon,keys])=>{const list=filtered.filter(r=>keys.includes(stOf(r)));return {key,name,icon,list};});
+    const goSec=key=>{this.setState({secOpen:{...secOpen,[key]:true},secActive:key});setTimeout(()=>{const el=this._list;const t=el&&el.querySelector('[data-sec="'+key+'"]');if(t)el.scrollTop=t.offsetTop-el.offsetTop;},30);};
+    const sections=secData.filter(x=>x.list.length||x.key==='reservas').map(({key,name,list})=>({key,name,count:list.length,pax:list.reduce((a,r)=>a+r.pax,0),
+      open:!!secOpen[key],chev:secOpen[key]?'ti-chevron-up':'ti-chevron-down',isEmpty:!list.length,groups:grp(list),
+      toggle:()=>this.setState({secOpen:{...secOpen,[key]:!secOpen[key]}})}));
+    const active=s.secActive||'reservas';
+    const shortcuts=secData.map(({key,name,icon,list})=>({name,icon,count:list.length,has:list.length>0,color:key===active?'#fafafa':'#71717a',border:key===active?'#fafafa':'#3f3f46',pick:()=>goSec(key)}));
+    const selRes=RES.find(r=>r.id===s.sel);
+    // floor plan
+    const scale=s.zoom/100;const K=0.5;
+    const tables=TABLES.filter(t=>t.f===s.floor).map(t=>{const r=RES.filter(x=>x.table===t.n&&inTurno(x)&&!NO_PAINT.includes(stOf(x)))[0];const small=t.s<100;
+      const blocked=!!t.blk,free=!r&&!blocked,hasRes=!!r&&!blocked;const isSel=selRes&&selRes.table===t.n&&hasRes&&r.id===selRes.id;
+      const st=r?ST[stOf(r)]:null;const c=hasRes?st[1]:'#2a2a2e';const sz=t.sh==='round'?(t.s>=120?60:40):48;const tiny=sz<48;
+      return {label:t.n,max:t.max,blocked,hasRes,free,blockText:t.blk==='turno'?'bloqueada por turno':'bloqueada',blockIcon:t.blk==='turno'?'ti-clock-off':'ti-ban',
+        title:hasRes?st[0]+' · '+r.name+' · '+TUN[TU(r.time)]:(blocked?'Mesa bloqueada':'Mesa libre'),turno:r?TU(r.time):'',turnoName:r?TUN[TU(r.time)]:'',
+        left:(t.cx*K-sz/2+24)+'px',top:(t.cy*K-sz/2+32)+'px',size:sz+'px',radius:t.sh==='round'?'50%':'3px',
+        bg:c,fg:hasRes?st[2]:'#a1a1aa',chair:hasRes?'color-mix(in oklab, '+c+' 62%, black)':'#3f3f46',
+        ring:isSel?'0 0 0 2px #fafafa':'none',fs:tiny?'6px':'8px',lh:tiny?'8px':'12px',time:r?f12(r.time):'',guest:r?r.name:'',pax:r?r.pax:0,
+        pick:()=>{if(hasRes)this.setState({sel:r.id});else this.flash(blocked?'Mesa '+t.n+' bloqueada':'Mesa '+t.n+' libre');}};});
+    // timeline
+    const hourW=Math.round(2.08*s.tlZoom);
+    const tlFloorNames=s.tab==='Todos'?FLOORS:[s.tab];
+    const bgImg='repeating-linear-gradient(90deg,transparent 0 '+(hourW-1)+'px,#232326 '+(hourW-1)+'px '+hourW+'px)';
+    const tlFloors=tlFloorNames.map(f=>{const rows=TABLES.filter(t=>t.f===f).map(t=>({name:t.n,max:t.max,blocked:!!t.blk,
+      blockIcon:t.blk==='turno'?'ti-clock-off':'ti-ban',blockText:t.blk==='turno'?'Bloqueada por turno':'Bloqueada',bgImg,
+      bars:RES.filter(r=>r.table===t.n&&inTurno(r)).map(r=>{const st=ST[stOf(r)],h=toH(r.time),over=r.pax>t.max;
+        return {left:((h-TL_START)*hourW+2)+'px',width:(r.dur/60*hourW-4)+'px',bg:st[1],fg:st[2],icon:st[3],title:r.name+' ('+r.type+')',
+          turno:TU(r.time),turnoName:TUN[TU(r.time)],time:f12(r.time),pax:r.pax,paxBg:over?'#FFC27A':'rgba(0,0,0,0.22)',paxFg:over?'#1a0d00':st[2],op:(matchQ(r)?1:0.25)*(NO_PAINT.includes(stOf(r))?0.45:1),
+          ring:r.id===s.sel?'0 0 0 2px #fafafa':'none',open:e=>this.openMenu(e,r)};})}));
+      return {name:f,countLabel:rows.length+' Mesas',rows};}).filter(f=>f.rows.length);
+    const nowH=s.now.getHours()+s.now.getMinutes()/60;
+    const showNow=s.offset===0&&nowH>=TL_START&&nowH<=TL_START+TL_HOURS;
+    const nowX=(128+(nowH-TL_START)*hourW-1)+'px';
+    const mk=(arr,key,sel)=>arr.map(n=>({name:n,checkOp:n===sel?1:0,pick:()=>this.setState({[key]:n,localOpen:false,turnosOpen:false})}));
+    const navItem=([name,icon])=>({name,icon,bg:name==='Libro de reservas'?'#1c1c1f':'transparent',pick:()=>{
+      this.setState({drawer:false});
+      if(name==='Operación y horarios'){this.setState({page:'operacion'});return;}
+      if(name!=='Libro de reservas')this.flash(name+': pantalla pendiente de diseño');}});
+    const railDefs=[['ti-book','Libro','plano'],['ti-timeline','Timeline','timeline'],['ti-layout-kanban','Kanban por horario','kanban'],['ti-calendar-event','Calendario',null]];
+    const menuRes=s.menu&&RES.find(r=>r.id===s.menu.id);
+    const isPlano=s.view==='plano';
+    return {
+      isMobile,showLabels,showRail:!isMobile,
+      showListPanel:isPlano&&(isMobile?s.pane==='list':!s.planFull),showPlanPanel:isPlano&&(isMobile?s.pane==='plan':true),
+      showAlt:!isPlano,isTimeline:s.view==='timeline',isKanban:s.view==='kanban',
+      listWidth:isMobile?'100%':(s.w<1100?'352px':'432px'),mainGap:isMobile?'0':'12px',
+      centerOrder:s.w<1000?3:0,centerBasis:s.w<1000?'100%':'auto',
+      mTabs:[['Lista','plano','list'],['Plano','plano','plan'],['Timeline','timeline'],['Kanban','kanban']].map(([name,view,pane])=>({name,
+        bg:(s.view===view&&(!pane||s.pane===pane))?'#27272a':'transparent',pick:()=>this.setState(pane?{view,pane}:{view})})),
+      openDrawer:()=>this.setState({drawer:true,localOpen:false,turnosOpen:false}),closeDrawer:()=>this.setState({drawer:false}),
+      drawerX:s.drawer?'0':'-105%',backdropOp:s.drawer?1:0,backdropPe:s.drawer?'auto':'none',
+      localName:s.local,localOpen:s.localOpen&&!s.drawer,toggleLocal:()=>this.setState({localOpen:!s.localOpen,turnosOpen:false}),
+      locals:mk(['Sheraton','Sheraton Miraflores'],'local',s.local),
+      turno:s.turno,turnosOpen:s.turnosOpen,toggleTurnos:()=>this.setState({turnosOpen:!s.turnosOpen,localOpen:false}),
+      turnos:mk(['Todos los turnos','Almuerzo','Cena'],'turno',s.turno),
+      dateLabel:s.offset===0?'Hoy':DAYS[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()],
+      notToday:s.offset!==0,goToday:()=>this.setState({offset:0}),
+      prevDay:()=>this.setState({offset:s.offset-1}),nextDay:()=>this.setState({offset:s.offset+1}),
+      cuposBg:s.cupos?'#3f1d1d':'#141416',cuposIcon:s.cupos?'ti-lock-open':'ti-lock',cuposLabel:s.cupos?'Abrir cupos':'Cerrar cupos',
+      toggleCupos:()=>{this.setState({cupos:!s.cupos});this.flash(s.cupos?'Cupos abiertos':'Cupos cerrados para el turno');},
+      walkIn:()=>this.flash('Walk-in: pantalla pendiente de diseño'),newRes:()=>this.flash('Nueva reserva: pantalla pendiente de diseño'),
+      openChat:()=>this.flash('Mensajes: pantalla pendiente de diseño'),openProfile:()=>this.flash('Perfil: pantalla pendiente de diseño'),
+      rail:railDefs.map(([icon,label,view])=>{const on=view&&s.view===view;
+        return {icon,label:view?label:label+' (no disponible)',bg:on?'#1c1c1f':'transparent',edge:on?'#fafafa':'transparent',color:on?'#fafafa':'#a1a1aa',
+          op:view?1:0.4,cursor:view?'pointer':'default',pick:()=>{if(view)this.setState({view});}};}),
+      query:s.query,onQuery:e=>this.setState({query:e.target.value}),
+      filterOpen:s.filterOpen,filterBg:s.filterOpen||s.statusF!=='Todas'?'#27272a':'transparent',toggleFilter:()=>this.setState({filterOpen:!s.filterOpen}),
+      statusFilters:['Todas','Por llegar','En mesa','Finalizadas'].map(n=>({name:n,bg:s.statusF===n?'#fafafa':'transparent',border:s.statusF===n?'#fafafa':'#3f3f46',color:s.statusF===n?'#09090b':'#fafafa',pick:()=>this.setState({statusF:n})})),
+      totalRes:filtered.length,totalPax:filtered.reduce((a,r)=>a+r.pax,0),
+      expanded:s.expanded,collapseIcon:s.expanded?'ti-chevron-up':'ti-chevron-down',toggleCollapse:()=>this.setState({expanded:!s.expanded}),
+      sections,shortcuts,listRef:el=>{this._list=el;},empty:filtered.length===0,
+      floors:FLOORS.map(f=>({name:f,fw:f===s.floor?600:500,bg:f===s.floor?'#18181a':'transparent',color:f===s.floor?'#fafafa':'#a1a1aa',pick:()=>this.setState({floor:f})})),
+      tables,noTables:tables.length===0,decor:(DECOR[s.floor]||[]).map(([x,y,w,h])=>({x:(x*K+24)+'px',y:(y*0.78*K+16)+'px',w:(w*K)+'px',h:(h*K)+'px'})),
+      scale,canvasW:(560*scale+24)+'px',canvasH:(640*scale+72)+'px',zoomLabel:s.zoom+'%',
+      zoomIn:()=>this.setState({zoom:Math.min(200,s.zoom+10)}),zoomOut:()=>this.setState({zoom:Math.max(50,s.zoom-10)}),
+      tools:[['ti-message-circle','Comentarios'],['ti-bell','Notificaciones'],['ti-info-circle','Leyenda'],[s.planFull?'ti-arrows-minimize':'ti-arrows-maximize','Expandir plano']].map(([icon,label],i)=>({icon,label,
+        bg:i===3&&s.planFull?'#27272a':'transparent',pick:()=>i===3?this.setState({planFull:!s.planFull}):i===2?this.setState({legend:true}):this.flash(label+': pantalla pendiente de diseño')})),
+      altTabs:['Todos',...FLOORS].map(f=>({name:f,fw:f===s.tab?600:500,bg:f===s.tab?'#18181a':'transparent',color:f===s.tab?'#fafafa':'#a1a1aa',pick:()=>this.setState({tab:f})})),
+      tlRef:el=>{if(el&&!el._init){el._init=1;if(showNow)el.scrollLeft=Math.max(0,(nowH-TL_START)*hourW-120);}},
+      tlW:(128+TL_HOURS*hourW)+'px',tlHours:Array.from({length:TL_HOURS},(_,i)=>({label:f12(TL_START+i),w:hourW+'px'})),
+      tlFloors,tlEmpty:tlFloors.length===0,showNow,nowX,
+      tlZoomLabel:s.tlZoom+'%',tlZoomIn:()=>this.setState({tlZoom:Math.min(200,s.tlZoom+10)}),tlZoomOut:()=>this.setState({tlZoom:Math.max(50,s.tlZoom-10)}),
+      kanban:kbCols,
+      kbModes:[['Por estado','estado','Una columna por cada estado'],['Por fase','fase','Estados agrupados en fases del servicio']].map(([name,k,hint])=>({name,hint,bg:s.kbMode===k?'#27272a':'transparent',pick:()=>this.setState({kbMode:k})})),
+      menuOpen:!!menuRes,menuX:s.menu?s.menu.x+'px':'0',menuY:s.menu?s.menu.y+'px':'0',menuName:menuRes?menuRes.name:'',closeMenu:()=>this.setState({menu:null}),
+      ...(()=>{const mo=k=>{const v=ST[k],on=menuRes&&stOf(menuRes)===k;return {n:v[0],c:v[1],i:v[3],sb:v[4]?v[1]:'transparent',si:v[4]?v[2]:v[1],checkOp:on?1:0,bg:on?'#1f1f22':'transparent',
+        pick:()=>this.setState({ov:{...this.state.ov,[this.state.menu.id]:k},menu:null})};};return {statusRes:ST_RES.map(mo),statusMesa:ST_MESA.map(mo)};})(),
+      legendOpen:s.legend,openLegend:()=>this.setState({legend:true}),closeLegend:()=>this.setState({legend:false}),stop:e=>e.stopPropagation(),
+      lgIcons:LG_ICONS.map(([icon,name])=>({icon,name})),
+      lgStatus:[...ST_RES,...ST_MESA].map(k=>{const v=ST[k];return {n:v[0],c:v[1],i:v[3],sb:v[4]?v[1]:'transparent',si:v[4]?v[2]:v[1],mesa:NO_PAINT.includes(k)?'transparent':v[1]};}),
+      navTop:[['Libro de reservas','ti-book'],['Operación y horarios','ti-calendar-event']].map(navItem),
+      navMid:[['Clientes','ti-users'],['Lista de reservas','ti-checks'],['Imprimir reservas','ti-printer'],['Notificaciones','ti-bell']].map(navItem),
+      navBottom:[['Configuracion del sistema','ti-settings'],['Centro de Ayuda','ti-help-hexagon'],['Contactanos','ti-mail-fast']].map(navItem),
+      toast:s.toast,isOperacion:s.page==='operacion',navTo:p=>this.setState({page:p==='operacion'?'operacion':'libro',drawer:false})
+    };
+  }
+}
+</script>
+</body>
+</html>

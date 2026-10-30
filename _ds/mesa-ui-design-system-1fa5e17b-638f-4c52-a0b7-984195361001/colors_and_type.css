@@ -1,0 +1,162 @@
+/* =============================================================
+   Shadcn Mobile — Design tokens
+   Source: Figma "Design System Mobile Shadcn.fig"
+   Base: shadcn/ui + Tailwind CSS defaults (Zinc neutral scale)
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ── Font families ─────────────────────────────────────── */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Menlo', ui-monospace, monospace;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Type scale (shadcn typography) ────────────────────── */
+  --text-h1: 700 48px/48px var(--font-sans); /* letter-spacing: -0.012em */
+  --text-h2: 700 30px/36px var(--font-sans); /* ls: -0.007em */
+  --text-h3: 700 24px/32px var(--font-sans); /* ls: -0.006em */
+  --text-h4: 700 20px/28px var(--font-sans); /* ls: -0.005em */
+  --text-lead: 400 20px/28px var(--font-sans);
+  --text-p: 400 16px/28px var(--font-sans);
+  --text-large: 700 18px/28px var(--font-sans);
+  --text-small: 500 14px/14px var(--font-sans);
+  --text-muted: 400 14px/20px var(--font-sans);
+  --text-code: 700 14px/20px var(--font-mono);
+
+  /* ── Neutral scale: Zinc (shadcn default) ──────────────── */
+  --zinc-50:  #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;
+  --zinc-950: #09090b;
+
+  /* ── Accent / semantic brand colors ────────────────────── */
+  /* Figma metadata shows #C54600 (orange), #7B61FF (purple), #007D00 (green),
+     #FF4B55 (red), #FFE15A (yellow), #2A9D90 (teal), #0D69D4 (blue) */
+  --accent-orange: #C54600;
+  --accent-purple: #7B61FF;
+  --accent-teal:   #2A9D90;
+  --accent-blue:   #0D69D4;
+  --accent-yellow: #FFE15A;
+
+  /* ── Semantic tokens (shadcn light theme) ──────────────── */
+  --background: #ffffff;
+  --foreground: var(--zinc-950);
+
+  --card: #ffffff;
+  --card-foreground: var(--zinc-950);
+
+  --popover: #ffffff;
+  --popover-foreground: var(--zinc-950);
+
+  --primary: var(--zinc-900);
+  --primary-foreground: var(--zinc-50);
+
+  --secondary: var(--zinc-100);
+  --secondary-foreground: var(--zinc-900);
+
+  --muted: var(--zinc-100);
+  --muted-foreground: var(--zinc-500);
+
+  --accent: var(--zinc-100);
+  --accent-foreground: var(--zinc-900);
+
+  --destructive: #ef4444;
+  --destructive-foreground: var(--zinc-50);
+
+  --success: #16a34a;
+  --warning: #f59e0b;
+
+  --border: var(--zinc-200);
+  --input:  var(--zinc-200);
+  --ring:   var(--zinc-950);
+
+  /* ── Radii ─────────────────────────────────────────────── */
+  --radius-sm: 2px;
+  --radius:    6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* ── Shadows (tailwind) ────────────────────────────────── */
+  --shadow-sm:  0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow:     0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg:  0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:  0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* ── Spacing (4px base — tailwind) ─────────────────────── */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Mobile constants ──────────────────────────────────── */
+  --mobile-width: 390px;   /* iPhone 14 viewport */
+  --touch-min: 44px;
+  --safe-top: 44px;        /* status bar */
+  --safe-bottom: 34px;     /* home indicator */
+}
+
+/* ── Dark theme ─────────────────────────────────────────── */
+.dark {
+  --background: var(--zinc-950);
+  --foreground: var(--zinc-50);
+  --card: var(--zinc-950);
+  --card-foreground: var(--zinc-50);
+  --popover: var(--zinc-950);
+  --popover-foreground: var(--zinc-50);
+  --primary: var(--zinc-50);
+  --primary-foreground: var(--zinc-900);
+  --secondary: var(--zinc-800);
+  --secondary-foreground: var(--zinc-50);
+  --muted: var(--zinc-800);
+  --muted-foreground: var(--zinc-400);
+  --accent: var(--zinc-800);
+  --accent-foreground: var(--zinc-50);
+  --destructive: #7f1d1d;
+  --border: var(--zinc-800);
+  --input:  var(--zinc-800);
+  --ring:   var(--zinc-300);
+}
+
+/* ── Semantic element defaults ──────────────────────────── */
+html, body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1 { font: var(--text-h1); letter-spacing: -0.012em; margin: 0; color: var(--foreground); }
+h2 { font: var(--text-h2); letter-spacing: -0.007em; margin: 0; color: var(--foreground); }
+h3 { font: var(--text-h3); letter-spacing: -0.006em; margin: 0; color: var(--foreground); }
+h4 { font: var(--text-h4); letter-spacing: -0.005em; margin: 0; color: var(--foreground); }
+p  { font: var(--text-p); margin: 0; color: var(--foreground); }
+
+.lead   { font: var(--text-lead);  color: var(--muted-foreground); }
+.large  { font: var(--text-large); color: var(--foreground); }
+.small  { font: var(--text-small); color: var(--foreground); }
+.muted  { font: var(--text-muted); color: var(--muted-foreground); }
+code, .code, kbd { font: var(--text-code); background: var(--zinc-100); padding: 3px 4px; border-radius: 3px; }
+blockquote { font: 400 16px/24px var(--font-sans); font-style: italic; border-left: 2px solid var(--border); padding: 0 24px; margin: 0; }

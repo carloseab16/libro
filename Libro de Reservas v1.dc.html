@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+html,body{margin:0;background:#0b0b0c;color:#fafafa;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button{font-family:inherit;color:inherit}
+a{color:#fafafa}a:hover{color:#ff8c1a}
+html{scrollbar-color:#27272a transparent}::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#27272a;border-radius:8px}::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}::-webkit-scrollbar-button{display:none}
+</style>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;overflow:hidden;background:#0b0b0c">
+
+  <!-- TOP BAR -->
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap;position:relative;z-index:20">
+    <div style="display:flex;align-items:center;gap:6px;position:relative">
+      <button onClick="{{ openDrawer }}" aria-label="Menú" style="width:44px;height:44px;border:0;background:transparent;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:background 150ms" style-hover="background:#1f1f22"><i class="ti ti-menu-2"></i></button>
+      <button onClick="{{ toggleLocal }}" style="display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:4px 8px;border-radius:12px;cursor:pointer;transition:background 150ms" style-hover="background:#1f1f22">
+        <span style="width:36px;height:36px;border-radius:50%;background:#fafafa;color:#09090b;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:8px;letter-spacing:0.5px;font-weight:700">ISOLINA</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2">
+          <span style="font-size:12px;color:#a1a1aa">Local</span>
+          <span style="font-size:15px;font-weight:600;white-space:nowrap">{{ localName }}</span>
+        </span>
+        <i class="ti ti-chevron-down" style="font-size:18px;color:#a1a1aa"></i>
+      </button>
+      <sc-if value="{{ localOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:52px;left:50px;width:240px;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4)">
+          <sc-for list="{{ locals }}" as="l" hint-placeholder-count="2">
+            <button onClick="{{ l.pick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a">{{ l.name }}<i class="ti ti-check" style="font-size:16px;opacity:{{ l.checkOp }}"></i></button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex:1 1 auto;justify-content:center;flex-wrap:wrap;order:{{ centerOrder }};flex-basis:{{ centerBasis }}">
+      <button onClick="{{ goToday }}" style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #27272a;background:{{ todayBg }};cursor:pointer;font-size:14px;font-weight:500;transition:background 150ms" style-hover="background:#27272a">Hoy</button>
+      <button onClick="{{ prevDay }}" aria-label="Día anterior" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-chevron-left"></i></button>
+      <div style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #52525b;background:#27272a;display:flex;align-items:center;font-size:14px;font-weight:500;white-space:nowrap">{{ dateLabel }}</div>
+      <button onClick="{{ nextDay }}" aria-label="Día siguiente" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-chevron-right"></i></button>
+      <div style="position:relative">
+        <button onClick="{{ toggleTurnos }}" style="height:40px;padding:0 12px;border-radius:999px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap;transition:background 150ms" style-hover="background:#1f1f22">{{ turno }}<i class="ti ti-chevron-down" style="font-size:16px;color:#a1a1aa"></i></button>
+        <sc-if value="{{ turnosOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:46px;left:0;width:200px;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4)">
+            <sc-for list="{{ turnos }}" as="t" hint-placeholder-count="3">
+              <button onClick="{{ t.pick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;text-align:left" style-hover="background:#27272a">{{ t.name }}<i class="ti ti-check" style="font-size:16px;opacity:{{ t.checkOp }}"></i></button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+      <button onClick="{{ toggleCupos }}" style="height:40px;padding:0 14px;border-radius:999px;border:1px solid #27272a;background:{{ cuposBg }};cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;transition:background 150ms" style-hover="background:#27272a"><i class="ti {{ cuposIcon }}" style="font-size:17px"></i><sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>{{ cuposLabel }}</span></sc-if></button>
+      <button onClick="{{ walkIn }}" style="height:40px;padding:0 14px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-walk" style="font-size:17px"></i><sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>Walk-in</span></sc-if></button>
+      <button onClick="{{ newRes }}" style="height:40px;padding:0 16px;border-radius:999px;border:0;background:#ff8c1a;color:#1a0d00;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;transition:background 150ms" style-hover="background:#ffa040" style-active="background:#e67a0d"><i class="ti ti-plus" style="font-size:17px"></i><sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span>Nueva reserva</span></sc-if></button>
+      <button onClick="{{ openChat }}" aria-label="Mensajes" style="width:40px;height:40px;border-radius:999px;border:1px solid #27272a;background:#141416;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-message-2"></i></button>
+    </div>
+  </div>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:4px;margin:0 16px 10px;padding:4px;background:#141416;border:1px solid #27272a;border-radius:10px">
+      <button onClick="{{ showList }}" style="flex:1;height:36px;border:0;border-radius:7px;background:{{ mTabListBg }};cursor:pointer;font-size:14px;font-weight:500">Reservas</button>
+      <button onClick="{{ showPlan }}" style="flex:1;height:36px;border:0;border-radius:7px;background:{{ mTabPlanBg }};cursor:pointer;font-size:14px;font-weight:500">Plano</button>
+    </div>
+  </sc-if>
+
+  <!-- MAIN -->
+  <div style="flex:1;min-height:0;display:flex;gap:{{ mainGap }}">
+    <sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}">
+      <div style="width:64px;flex:none;display:flex;flex-direction:column;padding-top:16px;gap:4px">
+        <sc-for list="{{ rail }}" as="r" hint-placeholder-count="4">
+          <button onClick="{{ r.pick }}" aria-label="{{ r.label }}" title="{{ r.label }}" style="height:64px;border:0;border-right:2px solid {{ r.edge }};background:{{ r.bg }};color:{{ r.color }};cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#1c1c1f;color:#fafafa"><i class="ti {{ r.icon }}"></i></button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- RESERVATION LIST -->
+    <sc-if value="{{ showListPanel }}" hint-placeholder-val="{{ true }}">
+      <div style="width:{{ listWidth }};flex:none;display:flex;flex-direction:column;background:#141416;border-radius:16px 16px 0 0;overflow:hidden;min-height:0">
+        <div style="display:flex;gap:10px;padding:16px">
+          <label style="flex:1;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid #27272a;border-radius:12px;background:#0f0f11;color:#71717a;transition:border-color 150ms" style-hover="border-color:#3f3f46">
+            <i class="ti ti-search" style="font-size:18px"></i>
+            <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar" style="flex:1;min-width:0;border:0;background:transparent;outline:none;color:#fafafa;font:inherit;font-size:14px">
+          </label>
+          <button onClick="{{ toggleFilter }}" aria-label="Filtros" style="width:44px;height:44px;border-radius:999px;border:1px solid #27272a;background:{{ filterBg }};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background 150ms" style-hover="background:#27272a"><i class="ti ti-filter-2"></i></button>
+        </div>
+        <sc-if value="{{ filterOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;padding:0 16px 12px;flex-wrap:wrap">
+            <sc-for list="{{ statusFilters }}" as="f" hint-placeholder-count="3">
+              <button onClick="{{ f.pick }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }};cursor:pointer;font-size:13px;transition:background 150ms" style-hover="background:#27272a">{{ f.name }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <button onClick="{{ toggleCollapse }}" style="display:flex;align-items:center;gap:14px;padding:12px 16px;border:0;background:#0f0f11;cursor:pointer;text-align:left">
+          <span style="flex:1;font-size:15px;font-weight:600">Reservas</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600"><i class="ti ti-book" style="font-size:18px"></i>{{ totalRes }}</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600"><i class="ti ti-user" style="font-size:18px"></i>{{ totalPax }}</span>
+          <i class="ti {{ collapseIcon }}" style="font-size:18px;margin-left:6px"></i>
+        </button>
+        <div style="flex:1;overflow-y:auto;overflow-x:hidden;min-height:0">
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+              <div>
+                <div style="display:flex;align-items:center;gap:14px;padding:10px 16px;background:#1c1c1f;font-size:15px;font-weight:600">
+                  <span style="flex:1;display:flex;align-items:center;gap:6px"><i class="ti ti-clock" style="font-size:18px"></i>{{ g.time }}</span>
+                  <span style="display:flex;align-items:center;gap:6px"><i class="ti ti-book" style="font-size:18px"></i>{{ g.count }}</span>
+                  <span style="display:flex;align-items:center;gap:6px;margin-right:40px"><i class="ti ti-user" style="font-size:18px"></i>{{ g.paxLabel }}</span>
+                </div>
+                <sc-for list="{{ g.items }}" as="r" hint-placeholder-count="2">
+                  <div onClick="{{ r.pick }}" style="display:flex;gap:14px;padding:18px 16px;border-bottom:1px solid #27272a;background:{{ r.bg }};box-shadow:inset 3px 0 0 {{ r.edge }};cursor:pointer;transition:background 150ms" style-hover="background:#1c1c1f">
+                    <div style="width:42px;height:42px;flex:none;border:1.5px solid #2ee02a;border-radius:10px;color:#2ee02a;display:flex;align-items:center;justify-content:center;font-size:22px;align-self:center"><i class="ti {{ r.statusIcon }}"></i></div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                      <div style="font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div>
+                      <div style="font-size:14px;color:#a1a1aa">{{ r.floor }}</div>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+                        <span style="font-size:13px;font-weight:500;color:#ff8c1a;border:1px solid #7a4a17;border-radius:999px;padding:2px 9px;white-space:nowrap">{{ r.type }}</span>
+                        <sc-if value="{{ r.label }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:500;color:#fff;background:#1f7ae0;border-radius:999px;padding:2px 10px;white-space:nowrap">{{ r.label }}</span></sc-if>
+                      </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:8px">
+                      <span style="font-size:16px;font-weight:500">{{ r.pax }}</span>
+                      <i class="ti ti-rosette" style="font-size:18px;color:{{ r.vipColor }}"></i>
+                    </div>
+                    <div style="width:1px;background:#27272a"></div>
+                    <div style="width:48px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500">{{ r.table }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+            <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:48px 24px;text-align:center;color:#a1a1aa;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px"><i class="ti ti-search" style="font-size:40px;color:#52525b"></i>No hay reservas que coincidan con la búsqueda.</div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- FLOOR PLAN -->
+    <sc-if value="{{ showPlanPanel }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0">
+        <div style="display:flex;gap:4px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none">
+          <sc-for list="{{ floors }}" as="f" hint-placeholder-count="5">
+            <button onClick="{{ f.pick }}" style="height:56px;padding:0 24px;border:0;border-radius:14px 14px 0 0;background:{{ f.bg }};color:{{ f.color }};cursor:pointer;font-size:16px;font-weight:500;white-space:nowrap;transition:color 150ms" style-hover="color:#fafafa">{{ f.name }}</button>
+          </sc-for>
+        </div>
+        <div style="flex:1;min-height:0;position:relative;background:#18181a">
+          <div style="position:absolute;inset:0;overflow:auto">
+            <div style="width:{{ canvasW }};height:{{ canvasH }};position:relative">
+              <div style="position:absolute;left:0;top:0;width:1150px;height:1080px;transform:scale({{ scale }});transform-origin:0 0;transition:transform 200ms cubic-bezier(0.4,0,0.2,1)">
+                <sc-for list="{{ decor }}" as="d" hint-placeholder-count="6">
+                  <div style="position:absolute;left:{{ d.x }};top:{{ d.y }};width:{{ d.w }};height:{{ d.h }};background:#222225;border-radius:6px"></div>
+                </sc-for>
+                <sc-for list="{{ tables }}" as="t" hint-placeholder-count="8">
+                  <div onClick="{{ t.pick }}" style="position:absolute;left:{{ t.left }};top:{{ t.top }};width:{{ t.size }};height:{{ t.size }};cursor:pointer">
+                    <div style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:14px;display:flex;gap:6px;align-items:center;white-space:nowrap;font-size:16px;font-weight:500">{{ t.label }}<sc-if value="{{ t.blocked }}" hint-placeholder-val="{{ false }}"><span style="background:#dc2626;color:#fff;font-size:13px;padding:1px 5px;border-radius:3px">bloqueada</span></sc-if></div>
+                    <div style="position:absolute;left:50%;top:-9px;transform:translateX(-50%);width:32px;height:14px;border-radius:7px;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);width:32px;height:14px;border-radius:7px;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;top:50%;left:-9px;transform:translateY(-50%);width:14px;height:32px;border-radius:7px;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;top:50%;right:-9px;transform:translateY(-50%);width:14px;height:32px;border-radius:7px;background:{{ t.chair }}"></div>
+                    <div style="position:absolute;inset:0;border-radius:{{ t.radius }};background:{{ t.bg }};color:{{ t.fg }};box-shadow:{{ t.ring }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:{{ t.fs }};transition:box-shadow 150ms,filter 150ms" style-hover="filter:brightness(1.12)">
+                      <sc-if value="{{ t.hasRes }}" hint-placeholder-val="{{ true }}">
+                        <span style="background:#1a1a1a;color:#fafafa;border-radius:3px;padding:1px 5px">{{ t.time }}</span>
+                        <span style="max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.guest }}</span>
+                        <span style="align-self:flex-end;display:flex;align-items:center;gap:2px"><i class="ti ti-user"></i>{{ t.pax }}</span>
+                      </sc-if>
+                      <sc-if value="{{ t.free }}" hint-placeholder-val="{{ false }}"><span style="color:#a1a1aa">Libre</span></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;background:linear-gradient(transparent,#18181a 40%);pointer-events:none">
+            <div style="display:flex;gap:6px;pointer-events:auto">
+              <sc-for list="{{ tools }}" as="b" hint-placeholder-count="4">
+                <button onClick="{{ b.pick }}" aria-label="{{ b.label }}" title="{{ b.label }}" style="width:44px;height:44px;border:0;border-radius:10px;background:{{ b.bg }};cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;transition:background 150ms" style-hover="background:#27272a"><i class="ti {{ b.icon }}"></i></button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;pointer-events:auto">
+              <button onClick="{{ zoomIn }}" aria-label="Acercar" style="width:44px;height:44px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-zoom-in"></i></button>
+              <span style="min-width:52px;text-align:center;font-size:15px;font-weight:600">{{ zoomLabel }}</span>
+              <button onClick="{{ zoomOut }}" aria-label="Alejar" style="width:44px;height:44px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a"><i class="ti ti-zoom-out"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- NAV DRAWER -->
+  <div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;z-index:40;background:rgba(0,0,0,0.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:{{ backdropOp }};pointer-events:{{ backdropPe }};transition:opacity 250ms cubic-bezier(0.4,0,0.2,1)"></div>
+  <nav style="position:fixed;top:0;left:0;bottom:0;z-index:50;width:360px;max-width:88vw;background:#0d0d0f;border-right:1px solid #27272a;display:flex;flex-direction:column;padding:24px 16px 16px;overflow-y:auto;transform:translateX({{ drawerX }});transition:transform 300ms cubic-bezier(0.4,0,0.2,1)">
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;margin-bottom:22px;position:relative">
+      <span style="width:24px;height:24px;border-radius:6px;background:#fafafa;color:#0d0d0f;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-armchair-2"></i></span>
+      <span>mesa <b style="font-weight:700;font-size:17px">24/7</b></span>
+      <button onClick="{{ closeDrawer }}" aria-label="Cerrar menú" style="position:absolute;right:0;width:36px;height:36px;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:20px;color:#a1a1aa;display:flex;align-items:center;justify-content:center" style-hover="background:#1f1f22;color:#fafafa"><i class="ti ti-x"></i></button>
+    </div>
+    <button onClick="{{ toggleLocal }}" style="display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border:1px solid #3f3f46;border-radius:999px;background:#141416;cursor:pointer;text-align:left;transition:background 150ms" style-hover="background:#1f1f22">
+      <span style="width:36px;height:36px;border-radius:50%;background:#fafafa;color:#09090b;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:8px;font-weight:700">ISOLINA</span>
+      <span style="flex:1;display:flex;flex-direction:column;line-height:1.25"><span style="font-size:11px;color:#a1a1aa">Local</span><span style="font-size:15px">{{ localName }}</span></span>
+      <i class="ti ti-chevron-down" style="font-size:18px"></i>
+    </button>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:24px;padding-bottom:20px;border-bottom:1px solid #27272a;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px">
+      <sc-for list="{{ navTop }}" as="n" hint-placeholder-count="2">
+        <button onClick="{{ n.pick }}" style="height:50px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-radius:14px;background:{{ n.bg }};cursor:pointer;font-size:15px;text-align:left;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ n.icon }}" style="font-size:19px"></i>{{ n.name }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:20px">
+      <sc-for list="{{ navMid }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.pick }}" style="height:50px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-radius:14px;background:{{ n.bg }};cursor:pointer;font-size:15px;text-align:left;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ n.icon }}" style="font-size:19px"></i>{{ n.name }}</button>
+      </sc-for>
+    </div>
+    <div style="flex:1;min-height:24px"></div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ navBottom }}" as="n" hint-placeholder-count="3">
+        <button onClick="{{ n.pick }}" style="height:50px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-radius:14px;background:{{ n.bg }};cursor:pointer;font-size:15px;text-align:left;transition:background 150ms" style-hover="background:#1c1c1f"><i class="ti {{ n.icon }}" style="font-size:19px"></i>{{ n.name }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ openProfile }}" style="margin-top:10px;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border:1px solid #3f3f46;border-radius:999px;background:#141416;cursor:pointer;text-align:left;transition:background 150ms" style-hover="background:#1f1f22">
+      <span style="position:relative;width:36px;height:36px;border-radius:50%;background:#3f3f46;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">CA<span style="position:absolute;top:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid #141416"></span></span>
+      <span style="flex:1;display:flex;flex-direction:column;line-height:1.25"><span style="font-size:15px">Carlos Arbieto</span><span style="font-size:13px;color:#a1a1aa">Admin</span></span>
+      <i class="ti ti-chevron-right" style="font-size:18px"></i>
+    </button>
+  </nav>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:#fafafa;color:#09090b;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;max-width:90vw"><i class="ti ti-info-circle" style="font-size:18px"></i>{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DAYS=['Dom.','Lun.','Mar.','Mié.','Jue.','Vie.','Sáb.'];
+const MONTHS=['Ene.','Feb.','Mar.','Abr.','May.','Jun.','Jul.','Ago.','Set.','Oct.','Nov.','Dic.'];
+const CAP={'12:30':27,'12:45':38,'13:00':32,'20:00':40,'20:30':36};
+const RES=[
+ {id:1,time:'12:30',name:'Pablo Plans Dimanuel',floor:'2do Piso',pax:3,status:'sentado',type:'A la Carta',table:'M9',tid:'a2',vip:true},
+ {id:2,time:'12:30',name:'Dinithi Kemper',floor:'2do Piso',pax:2,status:'sentado',type:'A la Carta',label:'Etiqueta',table:'M4',tid:'a1'},
+ {id:3,time:'12:30',name:'María Fernanda Quispe',floor:'2do Piso',pax:4,status:'reservado',type:'A la Carta',table:'M6',tid:'a6'},
+ {id:4,time:'12:45',name:'Jorge Salazar Rivas',floor:'2do Piso',pax:5,status:'sentado',type:'A la Carta',table:'M2',tid:'a4'},
+ {id:5,time:'12:45',name:'Lucía Torres Bravo',floor:'2do Piso',pax:2,status:'reservado',type:'Menú degustación',table:'M3',tid:'a3',vip:true},
+ {id:6,time:'12:45',name:'Andrés Gamarra',floor:'Terraza',pax:2,status:'reservado',type:'A la Carta',table:'T1',tid:'c1'},
+ {id:7,time:'13:00',name:'Sofía Delgado',floor:'2do Piso',pax:2,status:'reservado',type:'A la Carta',table:'M5',tid:'a5'},
+ {id:8,time:'13:00',name:'Renato Vela',floor:'1er Piso',pax:4,status:'sentado',type:'A la Carta',table:'P2',tid:'b2'},
+ {id:9,time:'20:00',name:'Camila Paredes',floor:'2do Piso',pax:2,status:'reservado',type:'A la Carta',label:'Aniversario',table:'M7',tid:'a7'},
+ {id:10,time:'20:30',name:'Diego Benavides',floor:'Barra',pax:2,status:'reservado',type:'A la Carta',table:'B1',tid:'e1'}
+];
+const TABLES=[
+ {id:'a1',floor:'2do Piso',label:'C2',shape:'round',s:90,cx:304,cy:180},
+ {id:'a2',floor:'2do Piso',label:'C2',shape:'sq',s:105,cx:468,cy:131},
+ {id:'a3',floor:'2do Piso',label:'C1',shape:'sq',s:105,cx:783,cy:132},
+ {id:'a4',floor:'2do Piso',label:'C2',shape:'sq',s:105,cx:136,cy:304},
+ {id:'a5',floor:'2do Piso',label:'C2',shape:'sq',s:105,cx:674,cy:352},
+ {id:'a6',floor:'2do Piso',label:'C2',shape:'round',s:130,cx:373,cy:447},
+ {id:'a7',floor:'2do Piso',label:'C2',shape:'sq',s:105,cx:120,cy:623},
+ {id:'a8',floor:'2do Piso',label:'C2',shape:'sq',s:105,cx:656,cy:622},
+ {id:'a9',floor:'2do Piso',label:'C2',shape:'sq',s:105,cx:369,cy:715,blocked:true},
+ {id:'a10',floor:'2do Piso',label:'C2',shape:'round',s:90,cx:663,cy:874,blocked:true},
+ {id:'b1',floor:'1er Piso',label:'C4',shape:'sq',s:120,cx:200,cy:200},
+ {id:'b2',floor:'1er Piso',label:'C4',shape:'sq',s:120,cx:480,cy:200},
+ {id:'b3',floor:'1er Piso',label:'C2',shape:'round',s:100,cx:760,cy:220},
+ {id:'b4',floor:'1er Piso',label:'C6',shape:'sq',s:140,cx:340,cy:520},
+ {id:'c1',floor:'Terraza',label:'C2',shape:'round',s:100,cx:220,cy:220},
+ {id:'c2',floor:'Terraza',label:'C2',shape:'round',s:100,cx:500,cy:220},
+ {id:'c3',floor:'Terraza',label:'C4',shape:'sq',s:120,cx:360,cy:480},
+ {id:'e1',floor:'Barra',label:'B1',shape:'round',s:80,cx:200,cy:200},
+ {id:'e2',floor:'Barra',label:'B2',shape:'round',s:80,cx:360,cy:200},
+ {id:'e3',floor:'Barra',label:'B3',shape:'round',s:80,cx:520,cy:200}
+];
+const DECOR={'2do Piso':[[264,10,98,82],[364,10,700,6],[340,366,335,50],[64,545,205,52],[652,642,262,26],[620,1000,262,24],[886,1162,80,70],[0,1282,250,42],[352,1286,236,42],[738,1286,302,42]],
+ '1er Piso':[[60,40,800,6],[600,420,280,60]],'Terraza':[[60,40,700,6]],'Almacen':[[200,200,400,240]],'Barra':[[100,300,560,60]]};
+const FLOORS=['1er Piso','2do Piso','Terraza','Almacen','Barra'];
+
+class Component extends DCLogic {
+  state={w:typeof window!=='undefined'?window.innerWidth:1400,drawer:false,localOpen:false,turnosOpen:false,local:'Isolina - Barranco',
+    offset:0,turno:'Todos los turnos',query:'',expanded:true,sel:1,floor:'2do Piso',zoom:130,rail:0,listOpen:true,
+    planFull:false,mView:'list',filterOpen:false,statusF:'Todas',cupos:false,nav:'Libro de reservas',toast:null};
+  componentDidMount(){
+    this._r=()=>this.setState({w:window.innerWidth});
+    this._k=e=>{if(e.key==='Escape')this.setState({drawer:false,localOpen:false,turnosOpen:false});};
+    const w=window.innerWidth;if(w<1400)this.setState({zoom:Math.max(50,Math.round((w<760?w-20:w-(w<1100?430:510))/1000*130/10)*10)});
+    window.addEventListener('resize',this._r);window.addEventListener('keydown',this._k);
+  }
+  componentWillUnmount(){window.removeEventListener('resize',this._r);window.removeEventListener('keydown',this._k);clearTimeout(this._t);}
+  flash(msg){clearTimeout(this._t);this.setState({toast:msg});this._t=setTimeout(()=>this.setState({toast:null}),2200);}
+  selectRes(r){const st={sel:r.id};const t=TABLES.find(x=>x.id===r.tid);if(t)st.floor=t.floor;this.setState(st);}
+  renderVals(){
+    const s=this.state,isMobile=s.w<760,showLabels=s.w>=1180;
+    const d=new Date(2026,6,17+s.offset);
+    const q=s.query.trim().toLowerCase();
+    const filtered=RES.filter(r=>(!q||r.name.toLowerCase().includes(q)||r.table.toLowerCase().includes(q))
+      &&(s.turno==='Todos los turnos'||(s.turno==='Almuerzo'?parseInt(r.time)<17:parseInt(r.time)>=17))
+      &&(s.statusF==='Todas'||(s.statusF==='Sentados'?r.status==='sentado':r.status==='reservado')));
+    const times=[...new Set(filtered.map(r=>r.time))];
+    const groups=times.map(t=>{const items=filtered.filter(r=>r.time===t);const pax=items.reduce((a,r)=>a+r.pax,0);
+      return {time:t,count:items.length,paxLabel:pax+'/'+(CAP[t]||30),items:items.map(r=>({...r,label:r.label||'',
+        statusIcon:r.status==='sentado'?'ti-checks':'ti-book',vipColor:r.vip?'#ff8c1a':'#a1a1aa',
+        bg:r.id===s.sel?'#1c1c1f':'transparent',edge:r.id===s.sel?'#2ee02a':'transparent',pick:()=>this.selectRes(r)}))};});
+    const selRes=RES.find(r=>r.id===s.sel);
+    const scale=s.zoom/130;
+    const tables=TABLES.filter(t=>t.floor===s.floor).map(t=>{const r=RES.find(x=>x.tid===t.id);const small=t.s<100;
+      const free=!r&&!t.blocked;const isSel=selRes&&selRes.tid===t.id;
+      return {label:t.label,blocked:!!t.blocked,hasRes:!free,free,left:(t.cx-t.s/2+40)+'px',top:(t.cy-t.s/2+50)+'px',size:t.s+'px',
+        radius:t.shape==='round'?'50%':'6px',bg:free?'#2a2a2e':'#2ee02a',fg:'#0a1a0a',chair:free?'#3f3f46':'#1c8f17',
+        ring:isSel?'0 0 0 3px #fafafa':'none',fs:small?'10px':'14px',time:(r?r.time:'12:45')+' PM',guest:r?r.name:'Dinithi Kemper',pax:r?r.pax:2,
+        pick:()=>{if(r)this.setState({sel:r.id});else this.flash(t.blocked?'Mesa '+t.label+' bloqueada':'Mesa '+t.label+' libre');}};});
+    const mk=(arr,key,sel)=>arr.map(n=>({name:n,checkOp:n===sel?1:0,pick:()=>this.setState({[key]:n,localOpen:false,turnosOpen:false})}));
+    const navItem=([name,icon])=>({name,icon,bg:s.nav===name?'#1c1c1f':'transparent',pick:()=>{
+      this.setState({nav:name,drawer:false});if(name!=='Libro de reservas')this.flash(name+': pantalla pendiente de diseño');}});
+    const railDefs=[['ti-book','Libro'],['ti-armchair-2','Mesas'],['ti-layout-sidebar','Mostrar/ocultar lista'],['ti-calendar-event','Calendario']];
+    const showListPanel=isMobile?s.mView==='list':(s.listOpen&&!s.planFull);
+    const showPlanPanel=isMobile?s.mView==='plan':true;
+    return {
+      isMobile,showLabels,showRail:!isMobile,showListPanel,showPlanPanel,
+      listWidth:isMobile?'100%':(s.w<1100?'340px':'420px'),mainGap:isMobile?'0':'12px',
+      centerOrder:s.w<1000?3:0,centerBasis:s.w<1000?'100%':'auto',
+      mTabListBg:s.mView==='list'?'#27272a':'transparent',mTabPlanBg:s.mView==='plan'?'#27272a':'transparent',
+      showList:()=>this.setState({mView:'list'}),showPlan:()=>this.setState({mView:'plan'}),
+      openDrawer:()=>this.setState({drawer:true,localOpen:false,turnosOpen:false}),closeDrawer:()=>this.setState({drawer:false}),
+      drawerX:s.drawer?'0':'-105%',backdropOp:s.drawer?1:0,backdropPe:s.drawer?'auto':'none',
+      localName:s.local,localOpen:s.localOpen&&!s.drawer,toggleLocal:()=>this.setState({localOpen:!s.localOpen,turnosOpen:false,drawer:false}),
+      locals:mk(['Isolina - Barranco','Isolina - Miraflores'],'local',s.local),
+      turno:s.turno,turnosOpen:s.turnosOpen,toggleTurnos:()=>this.setState({turnosOpen:!s.turnosOpen,localOpen:false}),
+      turnos:mk(['Todos los turnos','Almuerzo','Cena'],'turno',s.turno),
+      dateLabel:DAYS[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()],
+      todayBg:s.offset===0?'#27272a':'#141416',goToday:()=>this.setState({offset:0}),
+      prevDay:()=>this.setState({offset:s.offset-1}),nextDay:()=>this.setState({offset:s.offset+1}),
+      cuposBg:s.cupos?'#3f1d1d':'#141416',cuposIcon:s.cupos?'ti-lock-open':'ti-lock',cuposLabel:s.cupos?'Abrir cupos':'Cerrar cupos',
+      toggleCupos:()=>{this.setState({cupos:!s.cupos});this.flash(s.cupos?'Cupos abiertos':'Cupos cerrados para el turno');},
+      walkIn:()=>this.flash('Walk-in: pantalla pendiente de diseño'),newRes:()=>this.flash('Nueva reserva: pantalla pendiente de diseño'),
+      openChat:()=>this.flash('Mensajes: pantalla pendiente de diseño'),openProfile:()=>this.flash('Perfil: pantalla pendiente de diseño'),
+      rail:railDefs.map(([icon,label],i)=>{const on=i===2?s.listOpen:i===s.rail;
+        return {icon,label,bg:on?'#1c1c1f':'transparent',edge:on&&i!==2?'#fafafa':'transparent',color:on?'#fafafa':'#a1a1aa',
+        pick:()=>i===2?this.setState({listOpen:!s.listOpen,planFull:false}):this.setState({rail:i})};}),
+      query:s.query,onQuery:e=>this.setState({query:e.target.value}),
+      filterOpen:s.filterOpen,filterBg:s.filterOpen||s.statusF!=='Todas'?'#27272a':'transparent',toggleFilter:()=>this.setState({filterOpen:!s.filterOpen}),
+      statusFilters:['Todas','Sentados','Por llegar'].map(n=>({name:n,bg:s.statusF===n?'#fafafa':'transparent',border:s.statusF===n?'#fafafa':'#3f3f46',color:s.statusF===n?'#09090b':'#fafafa',pick:()=>this.setState({statusF:n})})).map(f=>({...f,name:f.name})),
+      totalRes:filtered.length,totalPax:filtered.reduce((a,r)=>a+r.pax,0),
+      expanded:s.expanded,collapseIcon:s.expanded?'ti-chevron-up':'ti-chevron-down',toggleCollapse:()=>this.setState({expanded:!s.expanded}),
+      groups,empty:filtered.length===0,
+      floors:FLOORS.map(f=>({name:f,bg:f===s.floor?'#18181a':'transparent',color:f===s.floor?'#fafafa':'#a1a1aa',pick:()=>this.setState({floor:f})})),
+      tables,decor:(DECOR[s.floor]||[]).map(([x,y,w,h])=>({x:(x+40)+'px',y:(y*0.78+20)+'px',w:w+'px',h:h+'px'})),
+      scale,canvasW:(1000*scale)+'px',canvasH:(1100*scale+70)+'px',zoomLabel:s.zoom+'%',
+      zoomIn:()=>this.setState({zoom:Math.min(200,s.zoom+10)}),zoomOut:()=>this.setState({zoom:Math.max(50,s.zoom-10)}),
+      tools:[['ti-message-circle','Comentarios'],['ti-bell','Notificaciones'],['ti-info-circle','Leyenda'],[s.planFull?'ti-arrows-minimize':'ti-arrows-maximize','Expandir plano']].map(([icon,label],i)=>({icon,label,
+        bg:i===3&&s.planFull?'#27272a':'transparent',pick:()=>i===3?this.setState({planFull:!s.planFull}):this.flash(label+': pantalla pendiente de diseño')})),
+      navTop:[['Libro de reservas','ti-book'],['Operación y horarios','ti-calendar-event']].map(navItem),
+      navMid:[['Clientes','ti-users'],['Lista de reservas','ti-checks'],['Imprimir reservas','ti-printer'],['Notificaciones','ti-bell']].map(navItem),
+      navBottom:[['Configuracion del sistema','ti-settings'],['Centro de Ayuda','ti-help-hexagon'],['Contactanos','ti-mail-fast']].map(navItem),
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

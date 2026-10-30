@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+html,body{margin:0;background:#141416;color:#fafafa;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input{font-family:inherit;color:inherit}
+a{color:#fafafa}a:hover{color:#ff8c1a}
+</style>
+</helmet>
+<div style="position:absolute;inset:0;overflow:{{ rootOverflow }};display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#fafafa;background:#141416">
+  <div style="display:flex;align-items:center;gap:16px;padding:16px 24px;flex-wrap:wrap">
+    <div style="display:flex;gap:4px;padding:4px;background:#0f0f11;border:1px solid #27272a;border-radius:12px">
+      <sc-for list="{{ segs }}" as="g" hint-placeholder-count="3">
+        <button onClick="{{ g.pick }}" style="height:38px;padding:0 16px;border:0;border-radius:9px;background:{{ g.bg }};color:{{ g.color }};cursor:pointer;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background 150ms,color 150ms" style-hover="color:#fafafa"><i class="ti {{ g.icon }}" style="font-size:17px"></i>{{ g.n }}</button>
+      </sc-for>
+    </div>
+    <span style="font-size:14px;color:#a1a1aa">{{ segHint }}</span>
+  </div>
+
+  <sc-if value="{{ showPlan }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;min-height:0;display:flex;border-top:1px solid #27272a;flex-direction:{{ dir }};flex:{{ rowFlex }}">
+      <div style="flex:{{ colFlex }};height:{{ colH }};min-width:0;min-height:0;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:4px;padding:10px 16px 0;overflow-x:auto;scrollbar-width:none">
+          <sc-for list="{{ floors }}" as="fl" hint-placeholder-count="5">
+            <button onClick="{{ fl.pick }}" style="height:48px;padding:0 20px;border:0;border-radius:12px 12px 0 0;background:{{ fl.bg }};color:{{ fl.color }};cursor:pointer;font-size:15px;font-weight:500;white-space:nowrap;transition:color 150ms" style-hover="color:#fafafa">{{ fl.n }}</button>
+          </sc-for>
+          <button onClick="{{ addFloor }}" aria-label="Agregar ambiente" title="Agregar ambiente" style="width:36px;height:36px;margin-left:6px;border-radius:999px;border:1px solid #3f3f46;background:#202023;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:#2a2a2e"><i class="ti ti-plus"></i></button>
+        </div>
+        <div ref="{{ canvasRef }}" onClick="{{ clearSel }}" style="flex:1;min-height:300px;overflow:auto;background-color:#18181a;background-image:radial-gradient(#2e2e33 1px,transparent 1px);background-size:24px 24px;position:relative">
+          <div style="position:relative;width:1000px;height:820px">
+            <sc-for list="{{ tables }}" as="t" hint-placeholder-count="8">
+              <div onMouseDown="{{ t.down }}" onClick="{{ t.click }}" title="{{ t.title }}" style="position:absolute;left:{{ t.x }};top:{{ t.y }};width:{{ t.w }};height:{{ t.h }};cursor:{{ t.cursor }};user-select:none">
+                <div style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:12px;font-size:13px;font-weight:600;white-space:nowrap;color:{{ t.labelColor }}">{{ t.n }}</div>
+                <div style="position:absolute;left:50%;top:-8px;transform:translateX(-50%);width:28px;height:10px;border-radius:5px;background:{{ t.chair }}"></div>
+                <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:28px;height:10px;border-radius:5px;background:{{ t.chair }}"></div>
+                <div style="position:absolute;top:50%;left:-8px;transform:translateY(-50%);width:10px;height:28px;border-radius:5px;background:{{ t.chair }}"></div>
+                <div style="position:absolute;top:50%;right:-8px;transform:translateY(-50%);width:10px;height:28px;border-radius:5px;background:{{ t.chair }}"></div>
+                <div style="position:absolute;inset:0;border-radius:{{ t.radius }};border:1.5px solid {{ t.border }};background:{{ t.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:{{ t.fs }};line-height:1.25;color:{{ t.fg }};transition:border-color 150ms,background 150ms" style-hover="border-color:#fafafa">
+                  <i class="ti {{ t.icon }}" style="font-size:15px"></i>
+                  <span style="white-space:nowrap">Min {{ t.min }}</span><span style="white-space:nowrap">Max {{ t.max }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noTables }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;left:40px;top:40px;display:flex;align-items:center;gap:10px;font-size:15px;color:#a1a1aa"><i class="ti ti-armchair-off" style="font-size:26px;color:#52525b"></i>Este ambiente no tiene mesas. Agrega una desde el panel.</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div style="width:{{ panelW }};flex:none;border-left:1px solid #27272a;background:#141416;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px">
+        <sc-if value="{{ isMesas }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span style="font-size:18px;font-weight:600">Mesa {{ selName }}</span>
+              <button onClick="{{ clearSel }}" aria-label="Cerrar" style="width:32px;height:32px;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:18px;color:#a1a1aa;display:flex;align-items:center;justify-content:center" style-hover="background:#27272a;color:#fafafa"><i class="ti ti-x"></i></button>
+            </div>
+            <label style="height:50px;display:flex;flex-direction:column;justify-content:center;padding:0 14px;border:1px solid #46464c;border-radius:12px;background:#202023">
+              <span style="font-size:12px;color:#a1a1aa">Nombre</span>
+              <input value="{{ selName }}" onChange="{{ onSelName }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:15px;padding:0">
+            </label>
+            <div style="display:flex;gap:10px">
+              <label style="flex:1;height:50px;display:flex;flex-direction:column;justify-content:center;padding:0 14px;border:1px solid #46464c;border-radius:12px;background:#202023">
+                <span style="font-size:12px;color:#a1a1aa">Mínimo de personas</span>
+                <input type="number" min="1" value="{{ selMin }}" onChange="{{ onSelMin }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:15px;padding:0;width:100%">
+              </label>
+              <label style="flex:1;height:50px;display:flex;flex-direction:column;justify-content:center;padding:0 14px;border:1px solid #46464c;border-radius:12px;background:#202023">
+                <span style="font-size:12px;color:#a1a1aa">Máximo de personas</span>
+                <input type="number" min="1" value="{{ selMax }}" onChange="{{ onSelMax }}" style="border:0;background:transparent;outline:none;color:#fafafa;font-size:15px;padding:0;width:100%">
+              </label>
+            </div>
+            <span style="font-size:13px;color:#a1a1aa">Arrastra la mesa en el plano para moverla.</span>
+            <button onClick="{{ delSel }}" style="height:42px;border-radius:999px;border:1px solid #46464c;background:#202023;cursor:pointer;font-size:14px;font-weight:500;color:#f87171;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="background:#2a2a2e"><i class="ti ti-trash" style="font-size:17px"></i>Eliminar mesa</button>
+          </sc-if>
+          <sc-if value="{{ noSel }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:18px;font-weight:600">Mapa de mesas</span>
+              <span style="font-size:14px;color:#a1a1aa">Elige un elemento para agregarlo al plano y luego arrástralo a su lugar.</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+              <sc-for list="{{ palette }}" as="p" hint-placeholder-count="6">
+                <button onClick="{{ p.add }}" title="Agregar {{ p.n }}" style="height:104px;border:1px solid #27272a;border-radius:12px;background:#1a1a1d;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;grid-column:{{ p.span }};transition:background 150ms,border-color 150ms" style-hover="background:#202023;border-color:#46464c">
+                  <span style="position:relative;width:{{ p.w }};height:{{ p.h }};border:1.5px solid #a1a1aa;border-radius:{{ p.r }}"></span>
+                  <span style="font-size:12px;color:#a1a1aa">{{ p.n }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ isComb }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:18px;font-weight:600">{{ combTitle }}</span>
+            <span style="font-size:14px;color:#a1a1aa">Selecciona dos o más mesas en el plano para crear una combinación.</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;padding:14px 16px;border:1px solid #27272a;border-radius:12px;background:#1a1a1d">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;min-height:30px;align-items:center">
+              <sc-for list="{{ pickedChips }}" as="c" hint-placeholder-count="1">
+                <span style="height:30px;display:flex;align-items:center;gap:4px;padding:0 4px 0 10px;border-radius:999px;background:#3a2410;font-size:13px;font-weight:600">{{ c.n }}<button onClick="{{ c.remove }}" aria-label="Quitar" style="width:22px;height:22px;border:0;border-radius:999px;background:transparent;color:#ff8c1a;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center"><i class="ti ti-x"></i></button></span>
+              </sc-for>
+              <sc-if value="{{ noPicked }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;color:#71717a">Ninguna mesa seleccionada.</span></sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#a1a1aa"><i class="ti ti-users" style="font-size:17px"></i>Capacidad combinada: <span style="color:#fafafa;font-weight:600">{{ pickedCap }}</span></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+              <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearPicked }}" style="height:40px;padding:0 16px;border-radius:999px;border:1px solid #46464c;background:#202023;cursor:pointer;font-size:14px;font-weight:500" style-hover="background:#2a2a2e">Cancelar</button></sc-if>
+              <button onClick="{{ saveComb }}" style="height:40px;padding:0 16px;border-radius:999px;border:0;background:{{ combBtnBg }};color:{{ combBtnFg }};cursor:{{ combBtnCursor }};font-size:14px;font-weight:600" style-hover="filter:brightness(1.08)">{{ combBtn }}</button>
+            </div>
+          </div>
+          <span style="font-size:16px;font-weight:600;margin-top:4px">Lista de mesas combinadas</span>
+          <div style="border:1px solid #27272a;border-radius:12px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 96px 76px;align-items:center;height:44px;padding:0 12px;background:#18181b;border-bottom:1px solid #27272a;font-size:13px;color:#a1a1aa">
+              <span>Mesas</span><span>Min - Max</span><span>Disponible</span><span></span>
+            </div>
+            <sc-for list="{{ combRows }}" as="c" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 96px 76px;align-items:center;min-height:54px;padding:0 12px;border-bottom:1px solid #27272a;font-size:14px;background:{{ c.bg }};transition:background 150ms" style-hover="background:#1a1a1d">
+                <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;font-weight:500">{{ c.names }}</span>
+                <span>{{ c.range }}</span>
+                <button onClick="{{ c.toggle }}" role="switch" aria-label="Disponible" style="width:44px;height:26px;border-radius:999px;border:0;background:{{ c.tgBg }};position:relative;cursor:pointer;transition:background 150ms"><span style="position:absolute;top:3px;left:{{ c.tgL }};width:20px;height:20px;border-radius:50%;background:#fafafa;transition:left 150ms"></span></button>
+                <span style="display:flex;gap:4px;justify-content:flex-end">
+                  <button onClick="{{ c.edit }}" aria-label="Editar" title="Editar" style="width:32px;height:32px;border-radius:8px;border:1px solid #3f3f46;background:#202023;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center" style-hover="background:#2a2a2e"><i class="ti ti-pencil"></i></button>
+                  <button onClick="{{ c.del }}" aria-label="Eliminar" title="Eliminar" style="width:32px;height:32px;border-radius:8px;border:1px solid #3f3f46;background:#202023;cursor:pointer;font-size:15px;color:#f87171;display:flex;align-items:center;justify-content:center" style-hover="background:#2a2a2e"><i class="ti ti-trash"></i></button>
+                </span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noComb }}" hint-placeholder-val="{{ false }}"><div style="padding:24px 12px;text-align:center;font-size:14px;color:#a1a1aa">Aún no hay combinaciones en este ambiente.</div></sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isExc }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-top:1px solid #27272a;padding:40px 24px;text-align:center">
+      <i class="ti ti-calendar-off" style="font-size:44px;color:#52525b"></i>
+      <span style="font-size:16px;font-weight:600">Excepciones</span>
+      <span style="font-size:14px;color:#a1a1aa;max-width:420px">Bloquea mesas o combinaciones en fechas puntuales. Esta pantalla está pendiente de diseño.</span>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;onToast&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(msg: string) =&gt; void&quot;}}">
+const FLOORS=['1er Piso','2do Piso','Terraza','Almacen','Barra'];
+const SEED=[
+ ['M1','1er Piso','sq',2,4,160,140],['M2','1er Piso','sq',2,6,380,140],
+ ['M3','2do Piso','round',2,4,120,100],['M4','2do Piso','sq',2,6,300,100],['M5','2do Piso','sq',1,2,480,100],['M6','2do Piso','sq',1,2,660,100],
+ ['M7','2do Piso','sq',2,4,120,300],['M8','2do Piso','round',4,8,300,300],['M9','2do Piso','sq',2,6,480,300],['M10','2do Piso','sq',1,2,660,300],['M11','2do Piso','rect',2,4,300,500],
+ ['M12','Terraza','sq',2,6,140,140],['M13','Terraza','round',1,2,340,140],['M14','Terraza','sq',2,4,540,140],
+ ['B1','Barra','stool',1,6,140,160],['B2','Barra','stool',1,2,260,160],['B3','Barra','stool',1,4,380,160]
+].map(([n,f,sh,min,max,x,y])=>({id:n,n,f,sh,min,max,x,y}));
+const SIZE={sq:[96,96,'8px'],round:[104,104,'50%'],rect:[96,160,'8px'],sm:[72,72,'8px'],smround:[76,76,'50%'],long:[180,90,'8px'],stool:[72,72,'50%']};
+const PALETTE=[['sq','Mesa cuadrada',48,48,'6px'],['round','Mesa redonda',56,56,'50%'],['sm','Mesa pequeña',36,36,'5px'],['smround','Redonda pequeña',38,38,'50%'],['rect','Mesa rectangular',36,60,'6px'],['stool','Banco de barra',30,30,'50%'],['long','Mesa larga',96,44,'6px']];
+const COMB_SEED=[{id:'c1',f:'2do Piso',t:['M5','M6'],disp:false},{id:'c2',f:'2do Piso',t:['M9','M10'],disp:true}];
+const LSK='mesa247.mesas.v1';
+function load(){try{const v=JSON.parse(localStorage.getItem(LSK)||'null');if(v&&v.tables)return v;}catch(e){}return {tables:SEED,combs:COMB_SEED};}
+
+class Component extends DCLogic {
+  state={w:typeof window!=='undefined'?window.innerWidth:1400,seg:'mesas',floor:'2do Piso',sel:null,picked:[],editing:null,drag:null,...(typeof window!=='undefined'?load():{tables:SEED,combs:COMB_SEED})};
+  componentDidMount(){this._r=()=>this.setState({w:window.innerWidth});window.addEventListener('resize',this._r);
+    this._mm=e=>{const d=this.state.drag;if(!d)return;const dx=e.clientX-d.sx,dy=e.clientY-d.sy;if(!d.moved&&Math.abs(dx)+Math.abs(dy)<4)return;
+      this.setState({drag:{...d,moved:true},tables:this.state.tables.map(t=>t.id===d.id?{...t,x:Math.max(0,Math.min(900,Math.round((d.ox+dx)/8)*8)),y:Math.max(30,Math.min(740,Math.round((d.oy+dy)/8)*8))}:t)});};
+    this._mu=()=>{const d=this.state.drag;if(!d)return;this.setState({drag:null,justDragged:d.moved});if(d.moved)this.save();};
+    window.addEventListener('mousemove',this._mm);window.addEventListener('mouseup',this._mu);}
+  componentWillUnmount(){window.removeEventListener('resize',this._r);window.removeEventListener('mousemove',this._mm);window.removeEventListener('mouseup',this._mu);}
+  save(next){const s={...this.state,...(next||{})};try{localStorage.setItem(LSK,JSON.stringify({tables:s.tables,combs:s.combs}));}catch(e){}}
+  set(next){this.setState(next);this.save(next);}
+  toast(m){this.props.onToast&&this.props.onToast(m);}
+  renderVals(){
+    const s=this.state,narrow=s.w<1100,isComb=s.seg==='comb';
+    const byId=Object.fromEntries(s.tables.map(t=>[t.id,t]));
+    const ft=s.tables.filter(t=>t.f===s.floor);
+    const combsF=s.combs.filter(c=>c.f===s.floor);
+    const capOf=ids=>{const ts=ids.map(i=>byId[i]).filter(Boolean);return [ts.reduce((a,t)=>a+t.min,0),ts.reduce((a,t)=>a+t.max,0)];};
+    const pc=capOf(s.picked);
+    const sel=s.sel&&byId[s.sel];
+    const upd=(id,patch)=>this.set({tables:s.tables.map(t=>t.id===id?{...t,...patch}:t)});
+    const canSave=s.picked.length>=2;
+    return {
+      segs:[['mesas','Mesas','ti-armchair'],['comb','Combinaciones','ti-link'],['exc','Excepciones','ti-calendar-off']].map(([k,n,icon])=>({n,icon,bg:s.seg===k?'#27272a':'transparent',color:s.seg===k?'#fafafa':'#a1a1aa',
+        pick:()=>this.setState({seg:k,sel:null,picked:[],editing:null})})),
+      segHint:s.seg==='mesas'?'Ubica y configura las mesas de cada ambiente.':s.seg==='comb'?'Une mesas para atender grupos más grandes.':'',
+      showPlan:s.seg!=='exc',isExc:s.seg==='exc',isMesas:s.seg==='mesas',isComb,dir:narrow?'column':'row',rootOverflow:narrow?'auto':'hidden',rowFlex:narrow?'none':'1',colFlex:narrow?'none':'1',colH:narrow?'520px':'auto',panelW:narrow?'100%':'380px',
+      floors:FLOORS.map(n=>({n,bg:n===s.floor?'#18181a':'transparent',color:n===s.floor?'#fafafa':'#a1a1aa',pick:()=>this.setState({floor:n,sel:null,picked:[],editing:null})})),
+      addFloor:()=>this.toast('Agregar ambiente: pantalla pendiente de diseño'),
+      canvasRef:()=>{},
+      clearSel:()=>{if(this.state.justDragged){this.setState({justDragged:false});return;}this.setState({sel:null});},
+      tables:ft.map(t=>{const [w,h,r]=SIZE[t.sh]||SIZE.sq;const isSel=s.sel===t.id,isPick=s.picked.includes(t.id);
+        const inComb=combsF.some(c=>c.t.includes(t.id));const hl=isComb?isPick:isSel;
+        return {fs:(r==='50%'||w<90)?'11px':'12px',n:t.n,min:t.min,max:t.max,x:t.x+'px',y:t.y+'px',w:w+'px',h:h+'px',radius:r,title:isComb?'Click para seleccionar':'Click para editar, arrastra para mover',
+          border:hl?'#ff8c1a':'#71717a',bg:hl?'rgba(255,140,26,0.14)':'#1c1c1f',fg:hl?'#fafafa':'#d4d4d8',chair:hl?'#ff8c1a':'#3f3f46',labelColor:hl?'#ff8c1a':'#fafafa',
+          icon:isComb&&inComb&&!isPick?'ti-link':'ti-user',cursor:isComb?'pointer':(s.drag&&s.drag.id===t.id?'grabbing':'grab'),
+          down:e=>{if(isComb||e.button!==0)return;e.stopPropagation();this.setState({drag:{id:t.id,sx:e.clientX,sy:e.clientY,ox:t.x,oy:t.y,moved:false}});},
+          click:e=>{e.stopPropagation();if(this.state.justDragged){this.setState({justDragged:false});return;}
+            if(isComb)this.setState({picked:isPick?s.picked.filter(x=>x!==t.id):[...s.picked,t.id]});else this.setState({sel:t.id});}};}),
+      noTables:ft.length===0,
+      hasSel:!!sel,noSel:!sel,selName:sel?sel.n:'',selMin:sel?sel.min:'',selMax:sel?sel.max:'',
+      onSelName:e=>upd(sel.id,{n:e.target.value}),onSelMin:e=>upd(sel.id,{min:Math.max(1,parseInt(e.target.value)||1)}),onSelMax:e=>upd(sel.id,{max:Math.max(1,parseInt(e.target.value)||1)}),
+      delSel:()=>{const n=sel.n;this.set({tables:s.tables.filter(t=>t.id!==sel.id),combs:s.combs.map(c=>({...c,t:c.t.filter(x=>x!==sel.id)})).filter(c=>c.t.length>=2),sel:null});this.toast('Mesa eliminada: '+n);},
+      palette:PALETTE.map(([sh,n,w,h,r],i)=>({n,w:w+'px',h:h+'px',r,span:i===PALETTE.length-1?'1 / -1':'auto',
+        add:()=>{const used=new Set(s.tables.map(t=>t.n));let k=1;while(used.has('M'+k))k++;const id='m'+Date.now();
+          const t={id,n:'M'+k,f:s.floor,sh,min:sh.startsWith('sm')||sh==='stool'?1:2,max:sh==='long'?8:sh.startsWith('sm')||sh==='stool'?2:4,x:40+(ft.length%6)*120,y:560};
+          this.set({tables:[...s.tables,t],sel:id});this.toast('Mesa '+t.n+' agregada');}})),
+      combTitle:s.editing?'Editar combinación':'Combinación de mesas',
+      pickedChips:s.picked.map(id=>({n:(byId[id]||{}).n||id,remove:()=>this.setState({picked:s.picked.filter(x=>x!==id)})})),
+      noPicked:s.picked.length===0,hasPicked:s.picked.length>0,pickedCap:s.picked.length?pc[0]+' - '+pc[1]+' personas':'—',
+      clearPicked:()=>this.setState({picked:[],editing:null}),
+      combBtn:s.editing?'Guardar cambios':'Crear combinación',combBtnBg:canSave?'#ff8c1a':'#27272a',combBtnFg:canSave?'#1a0d00':'#71717a',combBtnCursor:canSave?'pointer':'not-allowed',
+      saveComb:()=>{if(!canSave)return;const combs=s.editing?s.combs.map(c=>c.id===s.editing?{...c,t:[...s.picked]}:c):[...s.combs,{id:'c'+Date.now(),f:s.floor,t:[...s.picked],disp:true}];
+        this.set({combs,picked:[],editing:null});this.toast(s.editing?'Combinación actualizada':'Combinación creada');},
+      combRows:combsF.map(c=>{const [mn,mx]=capOf(c.t);return {names:c.t.map(i=>(byId[i]||{}).n||i).join(', '),range:mn+' - '+mx,bg:s.editing===c.id?'#1c1c1f':'transparent',
+        tgBg:c.disp?'#22c55e':'#52525b',tgL:c.disp?'21px':'3px',toggle:()=>this.set({combs:s.combs.map(x=>x.id===c.id?{...x,disp:!x.disp}:x)}),
+        edit:()=>this.setState({editing:c.id,picked:[...c.t]}),del:()=>{this.set({combs:s.combs.filter(x=>x.id!==c.id),editing:s.editing===c.id?null:s.editing});this.toast('Combinación eliminada');}};}),
+      noComb:combsF.length===0
+    };
+  }
+}
+</script>
+</body>
+</html>
